@@ -1,3 +1,11 @@
+"""
+This is the main file that will be run to test the scraping and parsing functions.
+
+The scraping function will get the HTML of the article from the URL.
+
+The parsing function will extract the title and text of the article from the HTML.
+"""
+
 from scraping import get_article_simple
 from parsing import get_title_and_text
 
