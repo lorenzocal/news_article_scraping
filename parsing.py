@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 
 
 def get_title_and_text(html):
-    soup = BeautifulSoup(html.content, 'html.parser')
+    soup = BeautifulSoup(html, 'html.parser')
 
     title = soup.find('title').get_text()
     

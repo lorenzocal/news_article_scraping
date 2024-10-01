@@ -15,4 +15,5 @@ def get_article(url):
         raise Exception(f"Failed to load page {url}. Error: {response.status_code}")
     
     html = response.content
+
     return html
