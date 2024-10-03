@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 from newspaper import Article #should install newspaper3k
 from lxml import html
-
+from readabilipy import simple_json_from_html_string
 ## get the title and text of the HTML
 
 # get texts with beautifulsoup : extract whole texts
@@ -49,3 +49,26 @@ def get_title_and_text4(html_: bytes) -> (str, list[str]):
     strings = '\n'.join([para for para in paragraphs])
 
     return title, strings
+
+#text extraction by using readabilitypy
+def get_title_and_text5(html_content):
+    html_str = html_content.decode('utf-8')
+    article = simple_json_from_html_string(html_str, use_readability=True)
+    title = article.get('title', 'N/A')
+    plain_text = article.get('plain_text', [])
+    if plain_text:
+        text_content = "\n".join([paragraph.get('text', '') for paragraph in plain_text])
+    else:
+        text_content = "N/A"
+    return title, text_content
+
+#text extraction by using goose3
+from goose3 import Goose
+def get_title_and_text6(html):
+    #html = get_article_simple(url)
+    g = Goose()
+    article = g.extract(raw_html=html)
+    title = article.title
+    text_content = article.cleaned_text[:150]
+    return title, text_content
+
