@@ -11,30 +11,36 @@ import nltk
 from nltk.tokenize import word_tokenize, sent_tokenize
 
 
+VECTOR_METHOD = "SBERT"
+
 
 def load_data(filename):
     with open(filename, 'r', encoding='utf-8') as file:
         text = file.read()
     return text
 
-def vectorize_doc(gt_str, own_str, vector_method):
+
+def vectorize_doc(gt_str, own_str) -> (float, float):
     # embedding each doc with SBERT
-    if vector_method == 'SBERT':
+    if VECTOR_METHOD == 'SBERT':
         model = SentenceTransformer('all-MiniLM-L6-v2')
         return model.encode(gt_str), model.encode(own_str)
         
     # embedding each doc with TF-IDF
-    elif vector_method == 'TF-IDF':
+    elif VECTOR_METHOD == 'TF-IDF':
         vectorizer = TfidfVectorizer()
         gt_vec = vectorizer.fit_transform([gt_str,own_str])[0].toarray()[0]
         own_vec = vectorizer.fit_transform([gt_str,own_str])[1].toarray()[0]
         return gt_vec, own_vec
         
     else:
-        return None, None
+        raise "Invalid VECTOR_METHOD"
 
-def similarity_between_text(gt_vec,own_vec):
+
+def cos_similarity(gt_str, own_str) -> float:
+    gt_vec, own_vec = vectorize_doc(gt_str, own_str)
     return cosine_similarity([gt_vec], [own_vec])[0][0]
+
 
 def edit_distance(str1, str2):
     m = len(str1)
@@ -68,6 +74,7 @@ def edit_distance(str1, str2):
 
     return dp[m][n]
 
+
 def normalization_edit_distance(str1, str2):
     """
     Normalization edit distance between two strings
@@ -80,38 +87,40 @@ def normalization_edit_distance(str1, str2):
     """
     return edit_distance(str1, str2)/max(len(str1), len(str2))
 
-def evaluate(gtname, filename, vec_method):
-    gt_str = load_data(gtname)
-    own_str = load_data(filename)
 
-    gt_vec, own_vec = vectorize_doc(gt_str, own_str, vec_method)
-
-    cos_sim = similarity_between_text(gt_vec, own_vec)
-    print('cosine similarity :', cos_sim)
-
-    return cos_sim
-
-
-def test_edit_distance():
+def calc_edit_distance(gt_str, own_str):
     # Download the necessary NLTK resources
-    #
 
     # measure time
     time0 = time.time()
-    text_1 = word_tokenize(load_data('data/01.txt'))
-    text_2 = word_tokenize(load_data('test_data/01.txt'))
+    text_1 = word_tokenize(gt_str)
+    text_2 = word_tokenize(own_str)
 
     print("time taken to tokenize the text: ", time.time()-time0)
 
     time0 = time.time()
-    print(normalization_edit_distance(text_1, text_2))
+    val = normalization_edit_distance(text_1, text_2)
     print("time taken to calculate edit distance: ", time.time()-time0)
 
-    assert edit_distance(text_1, text_2) == 13
+    # assert edit_distance(text_1, text_2) == 13
 
-    text_2 = word_tokenize(load_data('data/02.txt'))
+    # text_2 = word_tokenize(load_data('data/02.txt'))
 
-    time0 = time.time()
-    print(normalization_edit_distance(text_1, text_2))
-    print("time taken to calculate edit distance: ", time.time()-time0)
+    return val
 
+
+def evaluate(gtname, filename, eval_method):
+    gt_str = load_data(gtname)
+    own_str = load_data(filename)
+
+    match eval_method:
+        case "cos-sim":
+            val = cos_similarity(gt_str, own_str)
+        case "edit-dis":
+            val = calc_edit_distance(gt_str, own_str)
+        case _:
+            raise "eval_method not valid"
+
+    print(eval_method, ":", val)
+
+    return val
