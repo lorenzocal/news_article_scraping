@@ -44,6 +44,7 @@ def get_title_and_text3(html_: bytes) -> (str, str):
     return title, strings
 
 
+# With XPath
 def get_title_and_text4(html_: bytes) -> (str, str):
     html_str = html_.decode('utf-8')  # html : byte to str
     tree = html.fromstring(html_str)
@@ -117,5 +118,13 @@ def get_title_and_text(url: bytes, html: bytes) -> (str, list[str]):
         title, text = rules[domain](html)
         return title, clean_text(text)
     else:
-        title, text = get_title_and_text2(html)
-        return title, clean_text(text)
+        # Try all the functions, and take the one that returns the most text
+        functions = [get_title_and_text1, get_title_and_text2, get_title_and_text3, get_title_and_text4, get_title_and_text5, get_title_and_text_faz]
+        best_text = ''
+        best_title = ''
+        for function in functions:
+            title, text = function(html)
+            if len(text) > len(best_text):
+                best_text = text
+                best_title = title
+        return best_title, clean_text(best_text)
