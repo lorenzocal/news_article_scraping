@@ -2,7 +2,8 @@ import requests
 from bs4 import BeautifulSoup
 import json
 
-def get_url_list() -> list:
+
+def get_url_list() -> list[str]:
     """
     Get the list of URLs from the JSON file.
 
@@ -14,6 +15,7 @@ def get_url_list() -> list:
         data = json.load(f)
 
     return data['urls']
+
 
 def get_article_simple(url) -> bytes:
     """
@@ -27,8 +29,9 @@ def get_article_simple(url) -> bytes:
 
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
-        'Accept-Language': 'en-US,en;q=0.9',
+        'Accept-Language': 'en-US,en,fr;q=0.9',
         # 'Accept-Encoding': 'gzip, deflate, br',
+        'Accept-Encoding': 'identity',
         'Connection': 'keep-alive',
         'Referer': 'https://www.google.com/'
     }
