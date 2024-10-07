@@ -3,10 +3,8 @@ from newspaper import Article #should install newspaper3k
 from lxml import html
 import json
 
-## get the title and text of the HTML
-
 # get texts with beautifulsoup : extract whole texts
-def get_title_and_text(html: bytes) -> (str, list[str]):
+def get_title_and_text1(html: bytes) -> (str, list[str]):
     soup = BeautifulSoup(html, 'html.parser')
 
     title = soup.find('title').get_text()
@@ -71,3 +69,33 @@ def get_title_and_text_faz(html : bytes) -> (str, list[str]):
         title = 'N/A'
         strings = 'N/A'
     return title, strings
+
+def clean_text(text: str) -> str:
+    """
+    Remove advertisements and other unwanted text from the article text
+    """
+    # If the only thing there is in a line is "Advertisement" or "Supported by", remove the line
+    lines = text.split('\n')
+    lines = [line for line in lines if 'Advertisement' not in line and 'Supported by' not in line]
+
+    # Remove sentences like "More on ..." or "More about [name]"
+    text = ' '.join(lines)
+
+    return text
+
+def get_title_and_text(url: bytes, html: bytes) -> (str, list[str]):
+    """
+    Wrapper function to get the title and text of the HTML
+    Choose the appropriate function based on the structure of the HTML
+    """
+    rules = {
+        'faz.net': get_title_and_text_faz,
+        'www.nytimes.com': get_title_and_text2,
+    }
+    domain = url.split('/')[2]
+    if domain in rules:
+        title, text = rules[domain](html)
+        return title, clean_text(text)
+    else:
+        title, text = get_title_and_text2(html)
+        return title, clean_text(text)
