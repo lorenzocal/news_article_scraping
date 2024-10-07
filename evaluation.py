@@ -68,6 +68,17 @@ def edit_distance(str1, str2):
 
     return dp[m][n]
 
+def normalization_edit_distance(str1, str2):
+    """
+    Normalization edit distance between two strings
+    Args:
+    str1: string 1
+    str2: string 2
+
+    Returns:
+    float: normalized edit distance in 0-1 range
+    """
+    return edit_distance(str1, str2)/max(len(str1), len(str2))
 
 def evaluate(gtname, filename, vec_method):
     gt_str = load_data(gtname)
