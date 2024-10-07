@@ -1,7 +1,7 @@
 '''
 Evaluation of the program with the ground truth data
 '''
-# should install sentence-transformers
+# # should install sentence-transformers
 from sentence_transformers import SentenceTransformer, util #SBERT
 from sklearn.feature_extraction.text import TfidfVectorizer #TF-IDF
 from sklearn.metrics.pairwise import cosine_similarity
@@ -31,6 +31,39 @@ def vectorize_doc(gt_str, own_str, vector_method):
 def similarity_between_text(gt_vec,own_vec):
     return cosine_similarity([gt_vec], [own_vec])[0][0]
 
+def edit_distance(str1, str2):
+    m = len(str1)
+    n = len(str2)
+
+    # Create a matrix to store results of subproblems
+    dp = [[0 for x in range(n + 1)] for x in range(m + 1)]
+
+    # Fill dp[][] in bottom up manner
+    for i in range(m + 1):
+        for j in range(n + 1):
+            # If the first string is empty, insert all characters of the second string
+            if i == 0:
+                dp[i][j] = j    # Insert all characters of str2
+
+            # If the second string is empty, remove all characters of the first string
+            elif j == 0:
+                dp[i][j] = i    # Remove all characters of str1
+
+            # If last characters of both strings are the same, ignore last character
+            # and get the count for the remaining strings
+            elif str1[i - 1] == str2[j - 1]:
+                dp[i][j] = dp[i - 1][j - 1]
+
+            # If last characters are different, consider all possibilities and
+            # find the minimum
+            else:
+                dp[i][j] = 1 + min(dp[i][j - 1],        # Insert
+                                   dp[i - 1][j],        # Remove
+                                   dp[i - 1][j - 1])    # Replace
+
+    return dp[m][n]
+
+
 def evaluate(gtname, filename, vec_method):
     gt_str = load_data(gtname)
     own_str = load_data(filename)
@@ -42,4 +75,3 @@ def evaluate(gtname, filename, vec_method):
 
     return cos_sim
 
-    
