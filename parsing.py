@@ -1,7 +1,9 @@
 from bs4 import BeautifulSoup
-from newspaper import Article #should install newspaper3k
+from newspaper import Article  # should install newspaper3k
 from lxml import html
 import json
+from readabilipy import simple_json_from_html_string
+
 
 # get the title and text of the HTML
 
@@ -43,16 +45,28 @@ def get_title_and_text3(html_: bytes) -> (str, list[str]):
 
 
 def get_title_and_text4(html_: bytes) -> (str, list[str]):
-    html_str = html_.decode('utf-8')    # html : byte to str
+    html_str = html_.decode('utf-8')  # html : byte to str
     tree = html.fromstring(html_str)
 
     #title = tree.xpath('//title/text()')[0] # extract title with 'title' tag
-    title = tree.xpath('//h1/text()')[0] # extract title with 'h1' tag
+    title = tree.xpath('//h1/text()')[0]  # extract title with 'h1' tag
 
-    paragraphs = tree.xpath('//p/text()') # extract body with 'p' tag
+    paragraphs = tree.xpath('//p/text()')  # extract body with 'p' tag
     strings = '\n'.join([para for para in paragraphs])
 
     return title, strings
+
+
+def get_title_and_text5(html_content):
+    html_str = html_content.decode('utf-8')
+    article = simple_json_from_html_string(html_str, use_readability=True)
+    title = article.get('title', 'N/A')
+    plain_text = article.get('plain_text', [])
+    if plain_text:
+        text_content = "\n".join([paragraph.get('text', '') for paragraph in plain_text])
+    else:
+        text_content = "N/A"
+    return title, text_content
 
 
 def get_title_and_text_faz(html: bytes) -> (str, list[str]):
