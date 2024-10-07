@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 from newspaper import Article #should install newspaper3k
 from lxml import html
+import json
 
 ## get the title and text of the HTML
 
@@ -48,4 +49,25 @@ def get_title_and_text4(html_: bytes) -> (str, list[str]):
     paragraphs = tree.xpath('//p/text()') # extract body with 'p' tag
     strings = '\n'.join([para for para in paragraphs])
 
+    return title, strings
+
+def get_title_and_text_faz(html : bytes) -> (str, list[str]):
+    """
+    Special version of get_title_and_text for FAZ articles.
+    The article title and body text are embedded in a script tag with type "application/ld+json".
+    """
+    soup = BeautifulSoup(html, 'html.parser')
+    scripts = soup.find_all('script', type='application/ld+json')
+
+    for script in scripts:
+        # There are multiple script tags with type 'application/ld+json'.
+        # The one containing the article title and body text also contains the keys 'headline' and 'articleBody'.
+        if 'headline' in script.get_text() and 'articleBody' in script.get_text():
+            data = json.loads(script.get_text())
+            title = data['headline']
+            strings = data['articleBody']
+            break
+    else:
+        title = 'N/A'
+        strings = 'N/A'
     return title, strings
