@@ -106,6 +106,12 @@ def clean_text(text: str) -> str:
 
     return text
 
+def save_extracted_txt(filename, title, content):
+    with open(file_name, "w", encoding="utf-8") as file:
+        file.write(f"{title}\n")
+        file.write(f"{content}")
+    print("{file_name} save completed!")
+
 def get_title_and_text(url: bytes, html: bytes) -> (str, list[str]):
     """
     Wrapper function to get the title and text of the HTML
