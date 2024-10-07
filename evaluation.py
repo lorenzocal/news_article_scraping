@@ -93,12 +93,14 @@ def test_edit_distance():
     print("time taken to tokenize the text: ", time.time()-time0)
 
     time0 = time.time()
-    print(edit_distance(text_1, text_2))
+    print(normalization_edit_distance(text_1, text_2))
     print("time taken to calculate edit distance: ", time.time()-time0)
 
     assert edit_distance(text_1, text_2) == 13
 
     text_2 = word_tokenize(load_data('data/02.txt'))
 
-    print(edit_distance(text_1, text_2))
+    time0 = time.time()
+    print(normalization_edit_distance(text_1, text_2))
+    print("time taken to calculate edit distance: ", time.time()-time0)
 
