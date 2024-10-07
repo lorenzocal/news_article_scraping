@@ -124,3 +124,60 @@ def evaluate(gtname, filename, eval_method):
     print(eval_method, ":", val)
 
     return val
+
+def longest_common_substring(str1, str2):
+    m = len(str1)
+    n = len(str2)
+
+    # Create a 2D array to store lengths of longest common substrings
+    dp = [[0] * (n + 1) for _ in range(m + 1)]
+
+    longest = 0  # Length of the longest common substring
+    end_index = 0  # Ending index of the longest common substring in str1
+
+    # Build the dp array
+    for i in range(1, m + 1):
+        for j in range(1, n + 1):
+            if str1[i - 1] == str2[j - 1]:  # Characters match
+                dp[i][j] = dp[i - 1][j - 1] + 1
+                if dp[i][j] > longest:
+                    longest = dp[i][j]
+                    end_index = i  # Update end index of LCS
+            else:
+                dp[i][j] = 0  # Reset if no match
+
+    # Extract the longest common substring from str1 using the end_index
+    longest_common_substr = str1[end_index - longest:end_index]
+
+    print("longest_common_substr:", longest_common_substr)
+
+
+    return longest
+
+
+
+def calc_lcsb(gt_str, own_str):
+    # measure time
+    time0 = time.time()
+    text_1 = word_tokenize(gt_str)
+    text_2 = word_tokenize(own_str)
+
+    print("time taken to tokenize the text: ", time.time()-time0)
+
+    time0 = time.time()
+    val = longest_common_substring(text_1, text_2)
+    print("time taken to calculate lcs: ", time.time()-time0)
+
+    return val
+
+def test_calc_lcsb():
+    gt_str = load_data('data/01.txt')
+    own_str = load_data('test_data/01.txt')
+
+    val = calc_lcsb(gt_str, own_str)
+
+    print("LCS:", val)
+
+    percentage = val / len(word_tokenize(gt_str)) * 100
+
+    print("Percentage of LCS:", percentage)
