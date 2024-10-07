@@ -1,10 +1,15 @@
 '''
 Evaluation of the program with the ground truth data
 '''
+import time
+
 # # should install sentence-transformers
 from sentence_transformers import SentenceTransformer, util #SBERT
 from sklearn.feature_extraction.text import TfidfVectorizer #TF-IDF
 from sklearn.metrics.pairwise import cosine_similarity
+import nltk
+from nltk.tokenize import word_tokenize, sent_tokenize
+
 
 
 def load_data(filename):
@@ -74,4 +79,26 @@ def evaluate(gtname, filename, vec_method):
     print('cosine similarity :', cos_sim)
 
     return cos_sim
+
+
+def test_edit_distance():
+    # Download the necessary NLTK resources
+    #
+
+    # measure time
+    time0 = time.time()
+    text_1 = word_tokenize(load_data('data/01.txt'))
+    text_2 = word_tokenize(load_data('test_data/01.txt'))
+
+    print("time taken to tokenize the text: ", time.time()-time0)
+
+    time0 = time.time()
+    print(edit_distance(text_1, text_2))
+    print("time taken to calculate edit distance: ", time.time()-time0)
+
+    assert edit_distance(text_1, text_2) == 13
+
+    text_2 = word_tokenize(load_data('data/02.txt'))
+
+    print(edit_distance(text_1, text_2))
 
