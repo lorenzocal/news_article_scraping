@@ -1,3 +1,4 @@
+import spacy
 from bs4 import BeautifulSoup
 from newspaper import Article  # should install newspaper3k
 from lxml import html
@@ -142,3 +143,51 @@ def get_title_and_text(url: bytes, html: bytes) -> (str, list[str]):
                 best_text = text
                 best_title = title
         return best_title, clean_text(best_text)"""
+
+# SEMANTICS
+
+import html
+
+def get_title_and_text_semantic(html_content : bytes) -> (str, str):
+    """
+    Get the title and text of the HTML using semantic similarity
+    """
+
+    # Convert the string to bytes
+    html_content = html_content.decode('utf-8')
+    html_content = html.unescape(html_content)
+    soup = BeautifulSoup(html_content, 'html.parser')
+
+    # Get title 
+    title = soup.find('title').get_text()
+
+    nlp = spacy.load("en_core_web_md")
+
+    article_so_far = title
+    nlp_article_so_far = nlp(article_so_far)
+    
+    # Get all the text from the HTML split into paragraphs
+    paragraphs = soup.get_text(separator='\n', strip=True).split('\n')
+
+    # Remove the title from the paragraphs
+    paragraphs.remove(title)
+
+    # Remove paragraphs that are too short
+    paragraphs = [paragraph for paragraph in paragraphs if len(paragraph) > 10]
+
+    # Iteratively add paragraphs to the article until the similarity between the article and the article with the new paragraph is less than 0.9
+
+    # Iteratively add paragraphs to the article until the similarity between the article and the new paragraph is less than 0.9
+    banned_paragraphs = []
+
+    for paragraph in paragraphs:
+        nlp_paragraph = nlp(paragraph)
+        if nlp_article_so_far.similarity(nlp_paragraph) > 0.8:
+            
+            article_so_far += '\n' + paragraph
+            nlp_article_so_far = nlp(article_so_far)
+        else:
+            banned_paragraphs.append(paragraph)
+
+    article_so_far = article_so_far.replace(title, '', 1).strip()
+    return title, article_so_far
