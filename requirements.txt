@@ -1,0 +1,7 @@
+Spacy
+BeautifulSoup4
+newspaper3k
+lxml
+readabilipy
+lxml_html_clean
+pydantic==2.8.2
