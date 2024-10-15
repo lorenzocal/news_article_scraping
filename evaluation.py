@@ -1,6 +1,7 @@
 '''
 Evaluation of the program with the ground truth data
 '''
+import json
 import time
 
 # # should install sentence-transformers
@@ -9,6 +10,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer #TF-IDF
 from sklearn.metrics.pairwise import cosine_similarity
 import nltk
 from nltk.tokenize import word_tokenize, sent_tokenize
+# import numpy as np
+import matplotlib.pyplot as plt
 
 
 VECTOR_METHOD = "SBERT"
@@ -110,6 +113,7 @@ def calc_edit_distance(gt_str, own_str):
 
 
 def evaluate(gtname, filename, eval_method):
+    # TODO: this function as to be a wrapper for the evaluation metrics
     gt_str = load_data(gtname)
     own_str = load_data(filename)
 
@@ -181,3 +185,130 @@ def test_calc_lcsb():
     percentage = val / len(word_tokenize(gt_str)) * 100
 
     print("Percentage of LCS:", percentage)
+
+def plot_similarity_edit_distance():
+    pre_path = 'scr__/BeautifulSoup_url'
+
+    similarities = []
+
+    print("Edit distance similarity")
+
+    for i in range(1, 6):
+        gtname = f'data/0{i}.txt'
+        filename = f'{pre_path}{i}.txt'
+
+        # tokenizing the text
+        text_1 = word_tokenize(load_data(gtname))
+        text_2 = word_tokenize(load_data(filename))
+
+        similarities.append(1 - normalization_edit_distance(text_1, text_2))
+        print(f"Similarity between {gtname} and {filename} is {similarities[-1]}")
+
+    # drew an histogram
+    plt.bar([f"Pair {i}" for i in range(1, 6)], similarities)
+    plt.xlabel("Text Pairs")
+    plt.ylabel("(1 - Edit Distance) Similarity")
+    plt.title("(1 - Edit Distance) Similarity between Ground Truth and Extracted Texts")
+
+    plt.show()
+
+
+
+def all_longest_common_substrings(tokens1, tokens2):
+    m = len(tokens1)
+    n = len(tokens2)
+
+    # Create a 2D array to store lengths of longest common substrings
+    dp = [[0] * (n + 1) for _ in range(m + 1)]
+
+    # This will store the lengths and ending positions of all common substrings
+    substrings = []
+
+    # Build the dp array
+    for i in range(1, m + 1):
+        for j in range(1, n + 1):
+            if tokens1[i - 1] == tokens2[j - 1]:  # Tokens match
+                dp[i][j] = dp[i - 1][j - 1] + 1
+                substrings.append((dp[i][j], i))  # Store length and end position in tokens1
+            else:
+                dp[i][j] = 0  # Reset if no match
+
+    # Sort substrings by their length in descending order to prioritize longest matches
+    substrings.sort(reverse=True, key=lambda x: x[0])
+
+    # To hold the final list of non-overlapping longest common substrings
+    non_overlapping_substrings = []
+    used_indices = set()
+
+    for length, end_idx in substrings:
+        start_idx = end_idx - length
+
+        # Ensure no overlap with already selected substrings
+        if all(idx not in used_indices for idx in range(start_idx, end_idx)):
+            # Add to the result
+            non_overlapping_substrings.append(tokens1[start_idx:end_idx])
+            # Mark these indices as used
+            used_indices.update(range(start_idx, end_idx))
+
+    return non_overlapping_substrings
+
+
+
+
+def partially_retrieve_metrics(text1, text2):
+    """
+    the idea is to ifnd out the longest common substrings between the ground truth and the extracted text
+
+    keep the one that are longer then a certain threshold of percentage of the length of the ground truth (in terms of token)
+
+    sum the length of all the longest common substrings that are longer than the threshold
+
+    divide the sum by the length of the ground truth
+    Returns:
+        --- the percentage of the longest common substrings that are longer than the threshold ---
+    """
+    threshold = 0.05
+
+    text_1 = word_tokenize(text1)
+    text_2 = word_tokenize(text2)
+
+    # print("text_1:", text_2)
+
+    lcs_s = all_longest_common_substrings(text_1, text_2)
+
+    # parse and eliminate the ones that are shorter than the threshold
+    lcs_s = [lcs for lcs in lcs_s if len(lcs) > threshold * len(text_1)]
+
+    # print("lcs_s:", lcs_s)
+
+    # sum the length of the longest common substrings
+    sum_lcs = sum(len(lcs) for lcs in lcs_s)
+
+    # return the percentage of the longest common substrings that are longer than the threshold
+    return sum_lcs / len(text_1)
+def plot_partially_retrieve_metrics():
+    pre_path = 'scr__/BeautifulSoup_url'
+
+    similarities = []
+
+    print("Partially retrieve metrics")
+
+    for i in range(1, 6):
+        gtname = f'data/0{i}.txt'
+        filename = f'{pre_path}{i}.txt'
+
+        # tokenizing the text
+        text_1 = load_data(gtname)
+        text_2 = load_data(filename)
+
+        similarities.append(partially_retrieve_metrics(text_1, text_2))
+        print(f"Similarity between {gtname} and {filename} is {similarities[-1]}")
+
+    # drew an histogram
+    plt.bar([f"Pair {i}" for i in range(1, 6)], similarities)
+    plt.xlabel("Text Pairs")
+    plt.ylabel("Percentage of retrieved text")
+    plt.title("Ratio of the sum of retrieved cs sizes to the gt size")
+
+    plt.show()
+
