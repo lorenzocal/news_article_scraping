@@ -1,4 +1,4 @@
-from scraping import get_article_simple, get_url_list
+from fetching import get_article_simple, get_url_list
 import cleaning
 from bs4 import BeautifulSoup
 import html

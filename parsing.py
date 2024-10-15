@@ -113,34 +113,11 @@ def save_extracted_txt(filename, title, content):
         file.write(f"{content}")
     print("{file_name} save completed!")
 
+
+
 def get_title_and_text(url: bytes, html: bytes) -> (str, list[str]):
     """
     Wrapper function to get the title and text of the HTML
     Choose the appropriate function based on the structure of the HTML
     """
-    rules = {
-        'faz.net': get_title_and_text_faz,
-        'www.nytimes.com': get_title_and_text2,
-    }
-    domain = url.split('/')[2]
-    if domain in rules:
-        title, text = rules[domain](html)
-        return title, clean_text(text)
-    else:
-        # Default to get_title_and_text2
-        title, text = get_title_and_text2(html)
-        return title, clean_text(text)
-    
-        # This is an idea but it does not work
-        # Try all the functions, and take the one that returns the most text
-"""        functions = [get_title_and_text1, get_title_and_text2, get_title_and_text3, get_title_and_text4, get_title_and_text5, get_title_and_text_faz]
-        best_text = ''
-        best_title = ''
-        for function in functions:
-            print("Trying function", function)
-            title, text = function(html)
-            if len(text) > len(best_text):
-                best_text = text
-                best_title = title
-        return best_title, clean_text(best_text)"""
-
+    pass

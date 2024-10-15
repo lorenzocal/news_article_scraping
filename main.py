@@ -6,7 +6,7 @@ The scraping function will get the HTML of the article from the URL.
 The parsing function will extract the title and text of the article from the HTML.
 """
 from evaluation import evaluate
-from scraping import get_article_simple, get_url_list
+from fetching import get_article_simple, get_url_list
 import parsing
 
 # url = "https://www.nytimes.com/2024/09/29/us/north-carolina-helene-relief-damage.html"
