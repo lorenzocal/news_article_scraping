@@ -14,8 +14,10 @@ import parsing
 
 urls = get_url_list()
 
+url = urls[1]
+
 try:
-    html = get_article_simple(urls[1])  # step 1
+    html = get_article_simple(url)  # step 1
     title, texts = parsing.get_title_and_text1(html)  # step 2
     print("Title:", title)
 
