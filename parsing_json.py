@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import json
 import re
 
+# CHECK: the next two functions are repeated in the fetching file
 def get_url_list() -> list:
     """
     Get the list of URLs from the JSON file.

@@ -92,42 +92,100 @@ def normalization_edit_distance(str1, str2):
 
 
 def calc_edit_distance(gt_str, own_str):
-    # Download the necessary NLTK resources
+    """
+    **Description:**
+        - Calculate the normalized edit distance between two list of tokens (the gt text and the retrieved text).
+        - The edit distance is normalized by the length of the longest string.
+    Args:
+        gt_str: ground truth string
+        own_str: text extracted from the website
 
-    # measure time
-    time0 = time.time()
+    Returns:
+        float: normalized edit distance in 0-1 range
+    """
     text_1 = word_tokenize(gt_str)
     text_2 = word_tokenize(own_str)
 
-    print("time taken to tokenize the text: ", time.time()-time0)
-
-    time0 = time.time()
     val = normalization_edit_distance(text_1, text_2)
-    print("time taken to calculate edit distance: ", time.time()-time0)
-
-    # assert edit_distance(text_1, text_2) == 13
-
-    # text_2 = word_tokenize(load_data('data/02.txt'))
 
     return val
 
+def qualitative_result_switch(x):
+    try:
+        if x > 0.8:
+            return "high"
+        elif x > 0.6:
+            return "medium"
+        elif x > 0.4:
+            return "low"
+        elif x > 0.2:
+            return "very low"
+        else:
+            return "very very low"
+    except:
+        return "Error in score value"
 
-def evaluate(gtname, filename, eval_method):
+def evaluate(gtname, filename):
     # TODO: this function as to be a wrapper for the evaluation metrics
+    # TODO: we should decide a qualitative approach to differ the evaluation results in categories:
+    #  - 0.8-1. high
+    #  -  0.6-0.8 medium
+    #  -  0.4-0.6 low
+    #  -  0.2-0.4 very low
+    #  - 0-0.2 very very low
+    # TODO: also decide how and which metrics combine to get the final evaluation result
+    """
+    **Description:**
+        - Evaluate the extracted text with respect to the ground truth text.
+        - The evaluation is done using the following methods:
+            - Cosine similarity
+            - Edit distance
+            - Jaccard distance
+            - n-grams
+            - Longest common substring
+
+    Args:
+        gtname: ground truth filename
+        filename: text retrieved from the website
+
+    Returns:
+        dict: evaluation results
+    """
     gt_str = load_data(gtname)
     own_str = load_data(filename)
 
-    match eval_method:
-        case "cos-sim":
-            val = cos_similarity(gt_str, own_str)
-        case "edit-dis":
-            val = calc_edit_distance(gt_str, own_str)
-        case _:
-            raise "eval_method not valid"
+    evaluation_results = {}
 
-    print(eval_method, ":", val)
+    # first evaluation method is cosine similarity (semantic similarity)
+    evaluation_results["cosine_similarity"] = cos_similarity(gt_str, own_str)
 
-    return val
+    # second evaluation method is edit distance (lexical similarity)
+    evaluation_results["normalized_edit_distance"] = calc_edit_distance(gt_str, own_str)
+
+    # third evaluation method is Jaccard
+    evaluation_results["jaccard"] = nltk.jaccard_distance(set(word_tokenize(gt_str)), set(word_tokenize(own_str)))
+
+    # fourth evaluation method is n-grams
+    # TODO: implement the n-grams method
+    evaluation_results["n-grams"] = 0.
+
+    # list of weights for the evaluation methods
+    weights = [0.25, 0.25, 0.25, 0.25]
+
+    # do a wheighted average of the first 4 evaluation results
+    evaluation_results["evaluation_score"] = weights[0] * evaluation_results["cosine_similarity"]
+    + weights[1] * (1 - evaluation_results["normalized_edit_distance"])
+    + weights[2] * (1 - evaluation_results["jaccard"])
+    + weights[3] * evaluation_results["n-grams"]
+
+    # do a qualitiative evaluation of the evaluation score
+    evaluation_results["evaluation_score_qualitative"] = qualitative_result_switch(evaluation_results["evaluation_score"])
+
+    # fifth evaluation method is longest common substring
+    evaluation_results["partially_retrieve_metric"] = partially_retrieve_metrics(gt_str, own_str)
+
+    return evaluation_results
+
 
 def longest_common_substring(str1, str2):
     m = len(str1)
@@ -161,16 +219,10 @@ def longest_common_substring(str1, str2):
 
 
 def calc_lcsb(gt_str, own_str):
-    # measure time
-    time0 = time.time()
     text_1 = word_tokenize(gt_str)
     text_2 = word_tokenize(own_str)
 
-    print("time taken to tokenize the text: ", time.time()-time0)
-
-    time0 = time.time()
     val = longest_common_substring(text_1, text_2)
-    print("time taken to calculate lcs: ", time.time()-time0)
 
     return val
 
@@ -214,9 +266,21 @@ def plot_similarity_edit_distance():
 
 
 
-def all_longest_common_substrings(tokens1, tokens2):
-    m = len(tokens1)
-    n = len(tokens2)
+def all_longest_common_substrings(tokens_list_1, tokens_list_2):
+    """
+    Find all non-overlapping longest common substrings between two lists of tokens.
+
+    **Idea:**
+        - find how many relevant common substrings are there between the two texts.
+    Args:
+        tokens_list_1: ground truth tokens
+        tokens_list_2: retrieved text tokens
+
+    Returns:
+
+    """
+    m = len(tokens_list_1)
+    n = len(tokens_list_2)
 
     # Create a 2D array to store lengths of longest common substrings
     dp = [[0] * (n + 1) for _ in range(m + 1)]
@@ -227,7 +291,7 @@ def all_longest_common_substrings(tokens1, tokens2):
     # Build the dp array
     for i in range(1, m + 1):
         for j in range(1, n + 1):
-            if tokens1[i - 1] == tokens2[j - 1]:  # Tokens match
+            if tokens_list_1[i - 1] == tokens_list_2[j - 1]:  # Tokens match
                 dp[i][j] = dp[i - 1][j - 1] + 1
                 substrings.append((dp[i][j], i))  # Store length and end position in tokens1
             else:
@@ -246,7 +310,7 @@ def all_longest_common_substrings(tokens1, tokens2):
         # Ensure no overlap with already selected substrings
         if all(idx not in used_indices for idx in range(start_idx, end_idx)):
             # Add to the result
-            non_overlapping_substrings.append(tokens1[start_idx:end_idx])
+            non_overlapping_substrings.append(tokens_list_1[start_idx:end_idx])
             # Mark these indices as used
             used_indices.update(range(start_idx, end_idx))
 
@@ -257,7 +321,10 @@ def all_longest_common_substrings(tokens1, tokens2):
 
 def partially_retrieve_metrics(text1, text2):
     """
-    the idea is to ifnd out the longest common substrings between the ground truth and the extracted text
+    **Core Idea:**
+        - Find the percentage of ground truth text that is retrieved by the extracted text.
+
+    the idea is to find out the longest common substrings between the ground truth and the extracted text
 
     keep the one that are longer then a certain threshold of percentage of the length of the ground truth (in terms of token)
 
