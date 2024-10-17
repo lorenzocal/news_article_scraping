@@ -38,32 +38,37 @@ def get_title_and_text2(html_: bytes) -> (str, list[str]):
 
 
 # get texts with newspaper3k
-def get_title_and_text3(html_: bytes) -> (str, str):
-    article = Article(url='', language='en')
-    html_str = html_.decode('utf-8')    # html : byte to str
+def get_title_and_text3(html_: bytes) -> (str, list[str]):
+    article = Article(url='')
+    html_str = html_.decode('utf-8')  # Convert bytes to string
 
     article.set_html(html_str)
     article.parse()
 
-    # newspaper3k automatically extract
+    # Extract the title
     title = article.title
-    strings = article.text
 
-    return title, strings
+    # Split text into lines
+    lines = article.text.splitlines()
+
+    return title, lines
 
 
-# With XPath
-def get_title_and_text4(html_: bytes) -> (str, str):
-    html_str = html_.decode('utf-8')  # html : byte to str
+def get_title_and_text4(html_: bytes) -> (str, list[str]):
+    # Convert bytes to string with error handling for encoding issues
+    html_str = html_.decode('utf-8', errors='ignore')
+    
+    # Parse the HTML content
     tree = lxml.html.fromstring(html_str)
 
-    # title = tree.xpath('//title/text()')[0] # extract title with 'title' tag
-    title = tree.xpath('//h1/text()')[0]  # extract title with 'h1' tag
+    # Extract the title using 'h1' tag, handle cases where 'h1' might be missing
+    title = tree.xpath('//h1/text()')
+    title = title[0].strip() if title else "N/A"
 
-    paragraphs = tree.xpath('//p/text()')  # extract body with 'p' tag
-    strings = '\n'.join([para for para in paragraphs])
+    # Extract text from 'p' tags, strip whitespace for each paragraph
+    lines = [line.strip() for line in tree.xpath('//p/text()') if line.strip()]
 
-    return title, strings
+    return title, lines
 
 
 def get_title_and_text5(html_content) -> (str, str):
