@@ -9,26 +9,32 @@ from goose3 import Goose
 
 # get texts with beautifulsoup : extract whole texts
 def get_title_and_text1(html: bytes) -> (str, list[str]):
+    # Parse the HTML content
     soup = BeautifulSoup(html, 'html.parser')
 
-    title = soup.find('title').get_text()
+    # Extract the title text
+    title = soup.find('title').get_text() if soup.find('title') else 'N/A'
 
-    # Get all the text from the HTML
-    strings = soup.get_text()
+    # Get all text and split it into a list of strings by lines
+    text = soup.get_text()
+    lines = [line.strip() for line in text.splitlines() if line.strip()]
 
-    return title, strings
+    return title, lines
 
 
 # get texts with beautifulsoup : extract only 'p tag' text
-def get_title_and_text2(html_: bytes) -> (str, str):
+def get_title_and_text2(html_: bytes) -> (str, list[str]):
+    # Parse the HTML content
     soup = BeautifulSoup(html_, 'html.parser')
 
-    title = soup.find('title').get_text()
+    # Extract the title text
+    title = soup.find('title').get_text() if soup.find('title') else 'N/A'
 
-    paragraphs = soup.find_all('p')  # Get only p tags strings from within the HTML
-    strings = '\n'.join([para.get_text() for para in paragraphs])
+    # Get all <p> tag strings from within the HTML and return as a list
+    paragraphs = soup.find_all('p')
+    lines = [para.get_text() for para in paragraphs]
 
-    return title, strings
+    return title, lines
 
 
 # get texts with newspaper3k
