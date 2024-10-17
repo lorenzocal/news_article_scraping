@@ -7,20 +7,25 @@ The parsing function will extract the title and text of the article from the HTM
 
 The evaluation function will evaluate the text of the article with respect with the ground truth.
 """
-from evaluation import evaluate
-from fetching import get_article_simple, get_url_list
-import parsing
+import os
 
-# url = "https://www.nytimes.com/2024/09/29/us/north-carolina-helene-relief-damage.html"
-# url = "https://www.faz.net/aktuell/wirtschaft/kuenstliche-intelligenz/today-s-ai-can-t-be-trusted-19532136.html"
+import evaluation
+import fetching
+import final_function
+
 
 def print_retrieve_text(url_index, title, texts):
     print("Title:", title)
     print("Text:")
     print(texts)
-    name_file = "retrive_article{}.txt".format(url_index)
+    name_file = "retrieved_article{}.txt".format(url_index)
 
-    file_path = "./retrieve_articles/" + name_file
+    file_path = "./retrieved_articles/" + name_file
+
+    # Ensure the directory exists
+    directory = "./retrieved_articles/"
+    if not os.path.exists(directory):
+        os.makedirs(directory)
 
     with open(file_path, "w", encoding="utf-8") as file:
         file.write(f"{title}\n")
@@ -29,34 +34,26 @@ def print_retrieve_text(url_index, title, texts):
     return file_path
 
 
-url_index = 1
+def scrape_text_and_save(url_index):
+    urls = fetching.get_url_list()
+    url = urls[url_index]
 
-urls = get_url_list()
+    # use the new optimised function
+    title, texts = final_function.get_optimal_title_text(url)  # selects the best parsing function, then cleans
 
-url = urls[url_index]
+    # html = fetching.get_article_simple(url)  # step 1
+    # title, texts = parsing.get_title_and_text1(html)  # step 2
 
-try:
-    html = get_article_simple(url)  # step 1
-    title, texts = parsing.get_title_and_text1(html)  # step 2
-    print("Title:", title)
-
-    print("Text:")
-    print(texts)
-
-    # print the text to a file so is easier to read it
-    file_path_retr = print_retrieve_text(url_index, title, texts)
-
-    #  Evaluate the text
-    # TODO: parse and decide how to plot the evaluation
-    gt_path = "./data/GroundTruth/0{}.txt".format(url_index)
-    evaluation = evaluate(gt_path, file_path_retr)
-    print("Evaluation:")
-    print(evaluation)
-
-    # print("Text:")
-    # print(texts)
+    # print then store the text to a file, so it is easier to read
+    return print_retrieve_text(url_index, title, texts)
 
 
+scraped_path = scrape_text_and_save(1)
 
-except Exception as e:
-    print(e)
+#  Evaluate the text
+# TODO: parse and decide how to plot the evaluation
+gt_path = "./data/GroundTruth/0{}.txt".format(1)
+evaluation = evaluation.evaluate(gt_path, scraped_path)
+
+print("Evaluation:")
+print(evaluation)

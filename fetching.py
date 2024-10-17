@@ -1,6 +1,7 @@
 import requests
 import json
 
+
 def get_url_list() -> list[str]:
     """
     Get the list of URLs from the JSON file.

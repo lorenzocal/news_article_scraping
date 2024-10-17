@@ -3,6 +3,7 @@ Evaluation of the program with the ground truth data
 """
 from collections import Counter
 
+import nltk
 # # should install sentence-transformers
 from sentence_transformers import SentenceTransformer  # SBERT
 from sklearn.feature_extraction.text import TfidfVectorizer  # TF-IDF
@@ -362,40 +363,42 @@ def evaluate(gtname, filename):
     This function compares the text retrieved from the website to the ground truth
     text by employing several evaluation techniques, including:
 
-        - Cosine similarity
-        - Edit distance
+        - Cosine similarity (semantic similarity)
+        - Edit distance (lexical similarity)
         - Jaccard distance
-        - n-grams
-        - Longest common substring
+        - N-grams similarity
 
     Args:
         gtname (str): The filename containing the ground truth text.
         filename (str): The filename containing the text retrieved from the website.
 
     Returns:
-        A dictionary containing the evaluation results from each method.
+        A dictionary containing the evaluation results from each method, as well as a generic evaluation score.
+        {
+            "cosine_similarity": float,
+            "normalized_edit_distance": float,
+            "jaccard": float,
+            "n-grams": float,
+            "evaluation_score": float,
+            "evaluation_score_qualitative": str,
+            "partially_retrieve_metric": float
+        }
     """
+
+    nltk.download('punkt_tab')
 
     gt_str = load_data(gtname)
     own_str = load_data(filename)
 
-    evaluation_results = {
-        # first evaluation method is cosine similarity (semantic similarity)
-        "cosine_similarity": cos_similarity(gt_str, own_str),
-
-        # second evaluation method is edit distance (lexical similarity)
-        "normalized_edit_distance": calc_edit_distance(gt_str, own_str),
-
-        # third evaluation method is Jaccard
-        "jaccard": jaccard_distance(set(word_tokenize(gt_str)), set(word_tokenize(own_str))),
-
-        # fourth evaluation method is n-grams
-        # TODO: implement the n-grams method
-        "n-grams": n_grams(gt_str, own_str, 2)["similarity"]
-    }
-
     # list of weights for the evaluation methods
     weights = [0.25, 0.25, 0.25, 0.25]
+
+    evaluation_results = {
+        "cosine_similarity": cos_similarity(gt_str, own_str),  # cosine similarity (semantic similarity)
+        "normalized_edit_distance": calc_edit_distance(gt_str, own_str),  # edit distance (lexical similarity)
+        "jaccard": jaccard_distance(set(word_tokenize(gt_str)), set(word_tokenize(own_str))),  # Jaccard
+        "n-grams": n_grams(gt_str, own_str, 2)["similarity"]   # n-grams
+    }
 
     # do a weighted average of the first 4 evaluation results
     evaluation_results["evaluation_score"] = (weights[0] * evaluation_results["cosine_similarity"]

@@ -36,7 +36,7 @@ def compute_coherence(title: str, text: str):
     return avg_similarity
 
 
-def get_title_text(url: str):
+def get_optimal_title_text(url: str):
     # List of function defined in the parsing script
     bag_of_functions = [get_title_and_text1, get_title_and_text2, get_title_and_text3]
 
@@ -82,15 +82,16 @@ def get_title_text(url: str):
     return best_title, best_text
 
 
-url_list = [
-    'https://www.nytimes.com/2024/09/29/us/north-carolina-helene-relief-damage.html',
-    'http://www.chinatoday.com.cn/ctenglish/2018/commentaries/202409/t20240925_800378506.html',
-    'https://english.elpais.com/economy-and-business/2024-10-02/from-failed-inheritances-to-bad-investments-millionaires-who-lost-a-fortune.html'
-]
+if __name__ == '__main__':
+    url_list = [
+        'https://www.nytimes.com/2024/09/29/us/north-carolina-helene-relief-damage.html',
+        'http://www.chinatoday.com.cn/ctenglish/2018/commentaries/202409/t20240925_800378506.html',
+        'https://english.elpais.com/economy-and-business/2024-10-02/from-failed-inheritances-to-bad-investments-millionaires-who-lost-a-fortune.html'
+    ]
 
-for each_url in url_list:
-    title, text = get_title_text(each_url)
-    print("-----")
-    print('Title: ' + title)
-    print('Text: ' + text)
-    print('-----')
+    for each_url in url_list:
+        title, text = get_optimal_title_text(each_url)
+        print("-----")
+        print('Title: ' + title)
+        print('Text: ' + text)
+        print('-----')

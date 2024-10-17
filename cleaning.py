@@ -1,10 +1,12 @@
 import spacy
 
+
 # Convert list of strings to article
-def los_to_article(list_ : list[str]) -> str:
+def los_to_article(list_: list[str]) -> str:
     return '\n'.join(list_)
 
-def clean_article_semantics(title : str, paragraphs : list[str]) -> str:
+
+def clean_article_semantics(title: str, paragraphs: list[str]) -> str:
     """
     Get the title and text of the HTML using semantic similarity
     Args:
@@ -25,7 +27,7 @@ def clean_article_semantics(title : str, paragraphs : list[str]) -> str:
     # Remove paragraphs that are too short
     paragraphs = [paragraph for paragraph in paragraphs if len(paragraph) > 10]
 
-    # Iteratively add paragraphs to the article until the similarity between the article and the new paragraph is less than 0.9
+    # Iteratively add paragraphs to the article until the similarity between article and new paragraph is less than 0.9
     banned_paragraphs = []
     for paragraph in paragraphs:
         nlp_paragraph = nlp(paragraph)
