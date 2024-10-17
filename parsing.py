@@ -4,7 +4,8 @@ from newspaper import Article  # should install newspaper3k
 from lxml import html
 import json
 from readabilipy import simple_json_from_html_string
-
+from goose3 import Goose
+from goose3.configuration import Configuration
 
 # get the title and text of the HTML
 
@@ -72,6 +73,19 @@ def get_title_and_text5(html_content) -> (str, str):
         text_content = "N/A"
     return title, text_content
 
+def get_title_and_text6(html_: bytes) -> (str, str):
+    # Ensure the HTML content is decoded
+    html_str = html_.decode('utf-8', 'ignore')
+
+    # Use the Goose extractor
+    g = Goose()
+    article = g.extract(raw_html=html_str)
+
+    # Retrieve title and cleaned text from the extracted article
+    title = article.title if article.title else "N/A"
+    cleaned_text = article.cleaned_text if article.cleaned_text else "N/A"
+
+    return title, cleaned_text
 
 def get_title_and_text_faz(html: bytes) -> (str, list[str]):
     """
