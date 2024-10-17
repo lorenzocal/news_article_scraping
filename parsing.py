@@ -3,7 +3,7 @@ from newspaper import Article
 import lxml
 from readabilipy import simple_json_from_html_string
 from goose3 import Goose
-
+import pandas as pd
 # get the title and text of the HTML
 
 
@@ -71,19 +71,31 @@ def get_title_and_text4(html_: bytes) -> (str, list[str]):
     return title, lines
 
 
-def get_title_and_text5(html_content) -> (str, str):
+def get_title_and_text5(html_content: bytes) -> (str, list[str]):
+
+    # Convert bytes to string and handle decoding issues
     html_str = html_content.decode('utf-8')
+
+    # Parse the HTML content into a JSON-like structure using readability
     article = simple_json_from_html_string(html_str, use_readability=True)
+
+    # Extract title, with a default of 'N/A' if not found
     title = article.get('title', 'N/A')
+    
+    # Extract the text content from plain_text, default to an empty list if not found
     plain_text = article.get('plain_text', [])
     if plain_text:
-        text_content = "\n".join([paragraph.get('text', '') for paragraph in plain_text])
+        lines = [paragraph.get('text', '') for paragraph in plain_text]
     else:
-        text_content = "N/A"
-    return title, text_content
+        lines = ["N/A"]
+
+    # Remove duplicate lines
+    lines = pd.Series(lines).drop_duplicates().tolist()
+
+    return title, lines
 
 
-def get_title_and_text6(html_: bytes) -> (str, str):
+def get_title_and_text6(html_: bytes) -> (str, list[str]):
     # Ensure the HTML content is decoded
     html_str = html_.decode('utf-8', 'ignore')
 
@@ -91,11 +103,18 @@ def get_title_and_text6(html_: bytes) -> (str, str):
     g = Goose()
     article = g.extract(raw_html=html_str)
 
-    # Retrieve title and cleaned text from the extracted article
+    # Retrieve title with a default value if missing
     title = article.title if article.title else "N/A"
-    cleaned_text = article.cleaned_text if article.cleaned_text else "N/A"
+    
+    # Split cleaned text into paragraphs (assumes paragraphs are separated by new lines)
+    if article.cleaned_text:
+        lines = article.cleaned_text.split('\n')  # Split by new line
+        # Strip whitespace and filter out empty strings
+        lines = [line.strip() for line in lines if line.strip()]
+    else:
+        lines = ["N/A"]
 
-    return title, cleaned_text
+    return title, lines
 
 
 
