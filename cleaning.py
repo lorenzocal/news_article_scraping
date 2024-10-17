@@ -1,7 +1,7 @@
 import spacy
 
 # Convert list of strings to article
-def los_to_article(list_):
+def los_to_article(list_ : list[str]) -> str:
     return '\n'.join(list_)
 
 def clean_article_semantics(title : str, paragraphs : list[str]) -> str:

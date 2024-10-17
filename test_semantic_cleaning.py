@@ -21,6 +21,6 @@ paragraphs = soup.get_text(separator='\n', strip=True).split('\n')
 
 article = cleaning.clean_article_semantics(title, paragraphs)
 print("Title:", title)
-print("Text:", article)
+# print("Text:", article)
 
 print("Finish")
