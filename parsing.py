@@ -1,8 +1,6 @@
-import spacy
 from bs4 import BeautifulSoup
 from newspaper import Article  # should install newspaper3k
 from lxml import html
-import json
 from readabilipy import simple_json_from_html_string
 from goose3 import Goose
 from goose3.configuration import Configuration
@@ -87,27 +85,6 @@ def get_title_and_text6(html_: bytes) -> (str, str):
 
     return title, cleaned_text
 
-def get_title_and_text_faz(html: bytes) -> (str, list[str]):
-    """
-    Special version of get_title_and_text for FAZ articles.
-    The article title and body text are embedded in a script tag with type "application/ld+json".
-    """
-    soup = BeautifulSoup(html, 'html.parser')
-    scripts = soup.find_all('script', type='application/ld+json')
-
-    for script in scripts:
-        # There are multiple script tags with type 'application/ld+json'.
-        # The one containing the article title and body text also contains the keys 'headline' and 'articleBody'.
-        if 'headline' in script.get_text() and 'articleBody' in script.get_text():
-            data = json.loads(script.get_text())
-            title = data['headline']
-            strings = data['articleBody']
-            break
-    else:
-        title = 'N/A'
-        strings = 'N/A'
-    return title, strings
-
 def clean_text(text: str) -> str:
     """
     Remove advertisements and other unwanted text from the article text
@@ -126,12 +103,3 @@ def save_extracted_txt(filename, title, content):
         file.write(f"{title}\n")
         file.write(f"{content}")
     print("{file_name} save completed!")
-
-
-
-def get_title_and_text(url: bytes, html: bytes) -> (str, list[str]):
-    """
-    Wrapper function to get the title and text of the HTML
-    Choose the appropriate function based on the structure of the HTML
-    """
-    pass

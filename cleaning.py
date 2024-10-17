@@ -1,8 +1,7 @@
-import html
 import spacy
 
 # Convert list of strings to article
-def los_to_article(list_):
+def los_to_article(list_ : list[str]) -> str:
     return '\n'.join(list_)
 
 def clean_article_semantics(title : str, paragraphs : list[str]) -> str:
@@ -20,7 +19,6 @@ def clean_article_semantics(title : str, paragraphs : list[str]) -> str:
     article_so_far = [title]
     nlp_article_so_far = nlp(los_to_article(article_so_far))
 
-
     # Remove the title from the paragraphs
     paragraphs.remove(title)
 
@@ -29,7 +27,6 @@ def clean_article_semantics(title : str, paragraphs : list[str]) -> str:
 
     # Iteratively add paragraphs to the article until the similarity between the article and the new paragraph is less than 0.9
     banned_paragraphs = []
-
     for paragraph in paragraphs:
         nlp_paragraph = nlp(paragraph)
         similarity = nlp_article_so_far.similarity(nlp_paragraph)
