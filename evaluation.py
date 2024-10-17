@@ -255,20 +255,22 @@ def all_longest_common_substrings(tokens_list_1, tokens_list_2):
     return non_overlapping_substrings
 
 
-def partially_retrieve_metrics(text1, text2):
+def partially_retrieve_metrics(text1: str, text2: str):
     """
     **Core Idea:**
         - Find the percentage of ground truth text that is retrieved by the extracted text.
 
-    the idea is to find out the longest common substrings between the ground truth and the extracted text
+    The idea is:
+    - to find out the longest common substrings between the ground truth and the extracted text
 
-    keep the one that are longer then a certain threshold of percentage of the length of the ground truth (in terms of token)
+    - keep the ones that are longer then a certain threshold of percentage of the length of the ground truth (in terms of token)
 
-    sum the length of all the longest common substrings that are longer than the threshold
+    - sum the length of all the longest common substrings that are longer than the threshold
 
-    divide the sum by the length of the ground truth
+    - divide the sum by the length of the ground truth
+
     Returns:
-        --- the percentage of the longest common substrings that are longer than the threshold ---
+        The percentage of the longest common substrings that are longer than the threshold
     """
     threshold = 0.05
 

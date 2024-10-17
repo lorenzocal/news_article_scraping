@@ -1,11 +1,11 @@
 from bs4 import BeautifulSoup
-from newspaper import Article  # should install newspaper3k
-from lxml import html
+from newspaper import Article
+import lxml
 from readabilipy import simple_json_from_html_string
 from goose3 import Goose
-from goose3.configuration import Configuration
 
 # get the title and text of the HTML
+
 
 # get texts with beautifulsoup : extract whole texts
 def get_title_and_text1(html: bytes) -> (str, list[str]):
@@ -25,7 +25,7 @@ def get_title_and_text2(html_: bytes) -> (str, str):
 
     title = soup.find('title').get_text()
 
-    paragraphs = soup.find_all('p') # Get only p tags strings from within the HTML
+    paragraphs = soup.find_all('p')  # Get only p tags strings from within the HTML
     strings = '\n'.join([para.get_text() for para in paragraphs])
 
     return title, strings
@@ -49,9 +49,9 @@ def get_title_and_text3(html_: bytes) -> (str, str):
 # With XPath
 def get_title_and_text4(html_: bytes) -> (str, str):
     html_str = html_.decode('utf-8')  # html : byte to str
-    tree = html.fromstring(html_str)
+    tree = lxml.html.fromstring(html_str)
 
-    #title = tree.xpath('//title/text()')[0] # extract title with 'title' tag
+    # title = tree.xpath('//title/text()')[0] # extract title with 'title' tag
     title = tree.xpath('//h1/text()')[0]  # extract title with 'h1' tag
 
     paragraphs = tree.xpath('//p/text()')  # extract body with 'p' tag
@@ -71,6 +71,7 @@ def get_title_and_text5(html_content) -> (str, str):
         text_content = "N/A"
     return title, text_content
 
+
 def get_title_and_text6(html_: bytes) -> (str, str):
     # Ensure the HTML content is decoded
     html_str = html_.decode('utf-8', 'ignore')
@@ -85,6 +86,7 @@ def get_title_and_text6(html_: bytes) -> (str, str):
 
     return title, cleaned_text
 
+
 def clean_text(text: str) -> str:
     """
     Remove advertisements and other unwanted text from the article text
@@ -97,6 +99,7 @@ def clean_text(text: str) -> str:
     text = ' '.join(lines)
 
     return text
+
 
 def save_extracted_txt(filename, title, content):
     with open(filename, "w", encoding="utf-8") as file:
