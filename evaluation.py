@@ -1,13 +1,14 @@
 """
 Evaluation of the program with the ground truth data
 """
+from collections import Counter
 
 # # should install sentence-transformers
 from sentence_transformers import SentenceTransformer  # SBERT
 from sklearn.feature_extraction.text import TfidfVectorizer  # TF-IDF
 from sklearn.metrics.pairwise import cosine_similarity
-import nltk
 from nltk.tokenize import word_tokenize
+from nltk import jaccard_distance, ngrams
 # import numpy as np
 import matplotlib.pyplot as plt
 
@@ -123,71 +124,6 @@ def qualitative_result_switch(x: float):
             return "very very low"
     except:
         return "Error in score value"
-
-
-def evaluate(gtname, filename):
-    # TODO: this function as to be a wrapper for the evaluation metrics
-    # TODO: we should decide a qualitative approach to differ the evaluation results in categories:
-    #  - 0.8-1. high
-    #  - 0.6-0.8 medium
-    #  - 0.4-0.6 low
-    #  - 0.2-0.4 very low
-    #  - 0-0.2 very very low
-    # TODO: also decide how and which metrics combine to get the final evaluation result
-    """
-    Evaluates extracted text against the ground truth text using multiple methods.
-
-    This function compares the text retrieved from the website to the ground truth
-    text by employing several evaluation techniques, including:
-
-        - Cosine similarity
-        - Edit distance
-        - Jaccard distance
-        - n-grams
-        - Longest common substring
-
-    Args:
-        gtname (str): The filename containing the ground truth text.
-        filename (str): The filename containing the text retrieved from the website.
-
-    Returns:
-        A dictionary containing the evaluation results from each method.
-    """
-
-    gt_str = load_data(gtname)
-    own_str = load_data(filename)
-
-    evaluation_results = {
-        # first evaluation method is cosine similarity (semantic similarity)
-        "cosine_similarity": cos_similarity(gt_str, own_str),
-
-        # second evaluation method is edit distance (lexical similarity)
-        "normalized_edit_distance": calc_edit_distance(gt_str, own_str),
-
-        # third evaluation method is Jaccard
-        "jaccard": nltk.jaccard_distance(set(word_tokenize(gt_str)), set(word_tokenize(own_str))),
-
-        # fourth evaluation method is n-grams
-        # TODO: implement the n-grams method
-        "n-grams": 0.
-    }
-
-    # list of weights for the evaluation methods
-    weights = [0.25, 0.25, 0.25, 0.25]
-
-    # do a weighted average of the first 4 evaluation results
-    evaluation_results["evaluation_score"] = (weights[0] * evaluation_results["cosine_similarity"]
-                                              + weights[1] * (1 - evaluation_results["normalized_edit_distance"])
-                                              + weights[2] * (1 - evaluation_results["jaccard"])
-                                              + weights[3] * evaluation_results["n-grams"])
-
-    # do a qualitative evaluation of the evaluation score
-    evaluation_results["evaluation_score_qualitative"] = qualitative_result_switch(evaluation_results["evaluation_score"])
-
-    # fifth evaluation method is the longest common substring
-    evaluation_results["partially_retrieve_metric"] = partially_retrieve_metrics(gt_str, own_str)
-
-    return evaluation_results
 
 
 def longest_common_substring(str1, str2):
@@ -380,3 +316,95 @@ def plot_partially_retrieve_metrics():
     plt.title("Ratio of the sum of retrieved cs sizes to the gt size")
 
     plt.show()
+
+
+def n_grams(text1: str, text2: str, n: int) -> dict[str, list[tuple] | Counter | float]:
+    tokens1 = word_tokenize(text1.lower())  # Tokenize and lowercased text
+    tokens2 = word_tokenize(text2.lower())  # Tokenize and lowercased text
+    ngrams1 = list(ngrams(tokens1, n))
+    ngrams2 = list(ngrams(tokens2, n))
+
+    # Count frequency of each n-gram in both texts
+    counter1 = Counter(ngrams1)
+    counter2 = Counter(ngrams2)
+
+    # Find common n-grams between both texts
+    common_ngrams = counter1 & counter2  # Intersection: min of counts
+
+    # Calculate the total number of n-grams for similarity
+    total_ngrams = len(ngrams1) + len(ngrams2)
+    common_count = sum(common_ngrams.values())
+
+    similarity = (2 * common_count) / total_ngrams if total_ngrams > 0 else 0
+
+    return {
+        "ngrams1": ngrams1,
+        "ngrams2": ngrams2,
+        "common_ngrams": common_ngrams,
+        "similarity": similarity
+    }
+
+
+def evaluate(gtname, filename):
+    # TODO: this function as to be a wrapper for the evaluation metrics
+    # TODO: we should decide a qualitative approach to differ the evaluation results in categories:
+    #  - 0.8-1. high
+    #  - 0.6-0.8 medium
+    #  - 0.4-0.6 low
+    #  - 0.2-0.4 very low
+    #  - 0-0.2 very very low
+    # TODO: also decide how and which metrics combine to get the final evaluation result
+    """
+    Evaluates extracted text against the ground truth text using multiple methods.
+
+    This function compares the text retrieved from the website to the ground truth
+    text by employing several evaluation techniques, including:
+
+        - Cosine similarity
+        - Edit distance
+        - Jaccard distance
+        - n-grams
+        - Longest common substring
+
+    Args:
+        gtname (str): The filename containing the ground truth text.
+        filename (str): The filename containing the text retrieved from the website.
+
+    Returns:
+        A dictionary containing the evaluation results from each method.
+    """
+
+    gt_str = load_data(gtname)
+    own_str = load_data(filename)
+
+    evaluation_results = {
+        # first evaluation method is cosine similarity (semantic similarity)
+        "cosine_similarity": cos_similarity(gt_str, own_str),
+
+        # second evaluation method is edit distance (lexical similarity)
+        "normalized_edit_distance": calc_edit_distance(gt_str, own_str),
+
+        # third evaluation method is Jaccard
+        "jaccard": jaccard_distance(set(word_tokenize(gt_str)), set(word_tokenize(own_str))),
+
+        # fourth evaluation method is n-grams
+        # TODO: implement the n-grams method
+        "n-grams": n_grams(gt_str, own_str, 2)["similarity"]
+    }
+
+    # list of weights for the evaluation methods
+    weights = [0.25, 0.25, 0.25, 0.25]
+
+    # do a weighted average of the first 4 evaluation results
+    evaluation_results["evaluation_score"] = (weights[0] * evaluation_results["cosine_similarity"]
+                                              + weights[1] * (1 - evaluation_results["normalized_edit_distance"])
+                                              + weights[2] * (1 - evaluation_results["jaccard"])
+                                              + weights[3] * evaluation_results["n-grams"])
+
+    # do a qualitative evaluation of the evaluation score
+    evaluation_results["evaluation_score_qualitative"] = qualitative_result_switch(evaluation_results["evaluation_score"])
+
+    # fifth evaluation method is the longest common substring
+    evaluation_results["partially_retrieve_metric"] = partially_retrieve_metrics(gt_str, own_str)
+
+    return evaluation_results
