@@ -1,3 +1,9 @@
+# ###### ####### ######  ####
+#!pip install newspaper3k   #
+#!pip install readabilipy   #
+#!pip install goose3        #
+# ###### ####### ######  ####
+
 from bs4 import BeautifulSoup
 from newspaper import Article
 import lxml
@@ -7,7 +13,6 @@ import pandas as pd
 import json
 import re
 # get the title and text of the HTML
-
 
 # get texts with beautifulsoup : extract whole texts
 def get_title_and_text1(html: bytes) -> (str, list[str]):
@@ -118,7 +123,109 @@ def get_title_and_text6(html_: bytes) -> (str, list[str]):
 
     return title, lines
 
+def get_title_and_text7(soup):
 
+  # Returns True if the input is JSON structured data, False otherwise
+  def is_json(text):
+    try:
+        json.loads(text)
+        return True
+    except json.JSONDecodeError:
+        return False
+
+  # Decomposes the JSON returning a list of all its elements
+  def get_json_elements(data):
+
+    all_elements = []
+
+    # Check if the data is a dictionary
+    if isinstance(data, dict):
+        for key, value in data.items():
+            # Recursively add each value
+            all_elements.append(value)
+    # Check if the data is a list
+    elif isinstance(data, list):
+        for value in data:
+            # Recursively add each element in the list
+            all_elements.append(value)
+    else:
+        # Base case: if it's not a dict or list, it's a value
+        all_elements.append(data)
+
+    return all_elements
+
+
+  # Computes the number of common words between two strings
+  def common_words_percentage(str1, str2):
+    # Tokenize the strings into words and convert them into sets
+    words1 = set(str1.split())
+    words2 = set(str2.split())
+
+    # Find the number of common words
+    common_words = words1.intersection(words2)
+
+    # Get the length of the shorter string's word set
+    shortest_len = min(len(words1), len(words2))
+
+    # Calculate percentage of common words relative to the shorter string
+    percentage_common = len(common_words) / shortest_len if shortest_len > 0 else 0
+
+    return percentage_common
+
+# Removes a string if it shares almost all its words with another string in the list (the shorter string is removed)
+  def remove_duplicates(strings):
+    to_remove = set()
+
+    # Compare each string with every other string in the list
+    for i in range(len(strings)):
+        for j in range(i + 1, len(strings)):
+            str1 = strings[i]
+            str2 = strings[j]
+
+            # Check if more than 90% of the words in the shorter string are common
+            if common_words_percentage(str1, str2) > 0.9:
+                # Remove the shorter string
+                if len(str1.split()) < len(str2.split()):
+                    to_remove.add(str1)
+                else:
+                    to_remove.add(str2)
+
+    # Filter out the strings to remove
+    filtered_strings = [s for s in strings if s not in to_remove]
+    return filtered_strings
+
+  # Convert bytes to string and handle decoding issues
+  html_str = html_content.decode('utf-8')
+
+  # Parse the HTML content into a JSON-like structure using readability
+  article = simple_json_from_html_string(html_str, use_readability=True)
+
+  # Extract title, with a default of 'N/A' if not found
+  title = article.get('title', 'N/A')
+
+  lines = []
+  soup = BeautifulSoup(html_content, 'lxml')
+
+
+  for element in soup.find_all(True):
+    if (is_json(element.text)):
+
+      # Parse the JSON string into a Python dictionary
+      data = json.loads(element.text)
+
+      # Cycle over the elements of the JSON
+      for element in get_json_elements(data):
+        try:
+          string = str(element).strip()
+          # Remove HTML tags from the textual content
+          string = re.sub(r'<[^>]*>', '', string)
+          # Check if the line looks like a sentence (starts with a capital letter, has a minimum lenght and ends with a period, exclamation, or question mark)
+          if len(string) > 50 and string[0].isupper() and string[-1] in '.!?' and string not in lines:
+              lines.append(string)
+        except Exception:
+          pass
+
+  return title, lines
 
 def save_extracted_txt(filename, title, content):
     with open(filename, "w", encoding="utf-8") as file:
