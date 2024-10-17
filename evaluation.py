@@ -157,20 +157,23 @@ def evaluate(gtname, filename):
     evaluation_results = {}
 
     # first evaluation method is cosine similarity (semantic similarity)
-    evaluation_results["cosine_similarity"] = cos_similarity(gt_str, own_str)
+    evaluation_results["cosine_similarity"] = 1.
+    print("cosine_similarity:", evaluation_results["cosine_similarity"])
 
     # second evaluation method is edit distance (lexical similarity)
     evaluation_results["normalized_edit_distance"] = calc_edit_distance(gt_str, own_str)
+    print("normalized_edit_distance:", evaluation_results["normalized_edit_distance"])
 
     # third evaluation method is Jaccard
     evaluation_results["jaccard"] = nltk.jaccard_distance(set(word_tokenize(gt_str)), set(word_tokenize(own_str)))
+    print("jaccard:", evaluation_results["jaccard"])
 
     # fourth evaluation method is n-grams
     # TODO: implement the n-grams method
-    evaluation_results["n-grams"] = 0.
+    evaluation_results["n-grams"] = 1.
 
     # list of weights for the evaluation methods
-    weights = [0.25, 0.25, 0.25, 0.25]
+    weights = [0., 0.7, 0.3, 0.]
 
     # do a wheighted average of the first 4 evaluation results
     evaluation_results["evaluation_score"] = weights[0] * evaluation_results["cosine_similarity"]

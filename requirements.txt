@@ -4,4 +4,6 @@ newspaper3k
 lxml
 readabilipy
 lxml_html_clean
+nltk
+sentence-transformers
 pydantic==2.8.2
