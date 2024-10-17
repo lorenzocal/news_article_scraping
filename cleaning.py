@@ -53,6 +53,41 @@ def clean_article_semantics(title: str, paragraphs: list[str]) -> str:
 
     return los_to_article(article_so_far)
 
+def clean_text_regressionmatching(title: str, paragraphs: list[str]) -> str:
+    """
+    Remove advertisements and other unwanted text from the article's paragraphs
+    in multiple languages (English, French, German, Italian), and also remove
+    paragraphs that are too short.
+    """
+
+    # Define the unwanted phrases for removal (in multiple languages)
+    unwanted_phrases = [
+        'Advertisement',     # English
+        'Supported by',      # English
+        'publicité',         # French
+        'soutenu par',       # French
+        'Werbung',           # German
+        'unterstützt von',   # German
+        'pubblicità',        # Italian
+        'supportato da'      # Italian
+    ]
+
+    # Filter out paragraphs containing any of the unwanted phrases
+    filtered_paragraphs = [
+        paragraph for paragraph in paragraphs
+        if not any(phrase in paragraph for phrase in unwanted_phrases)
+    ]
+
+    # Remove paragraphs that are too short (length <= 10 characters)
+    filtered_paragraphs = [
+        paragraph for paragraph in filtered_paragraphs if len(paragraph) > 10
+    ]
+
+    # Combine the cleaned paragraphs with the title and return as a single string
+    return title + '\n' + '\n'.join(filtered_paragraphs)
+
+    
+    
 
 # Other idea
 # Iteratively add paragraphs to the article until the similarity between the article and the article with the new paragraph is less than 0.9
