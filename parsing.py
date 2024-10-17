@@ -195,7 +195,7 @@ def get_title_and_text7(soup):
     return filtered_strings
 
   # Convert bytes to string and handle decoding issues
-  html_str = html_content.decode('utf-8')
+  html_str = soup.decode('utf-8')
 
   # Parse the HTML content into a JSON-like structure using readability
   article = simple_json_from_html_string(html_str, use_readability=True)
@@ -204,7 +204,7 @@ def get_title_and_text7(soup):
   title = article.get('title', 'N/A')
 
   lines = []
-  soup = BeautifulSoup(html_content, 'lxml')
+  soup = BeautifulSoup(soup, 'lxml')
 
 
   for element in soup.find_all(True):
@@ -224,6 +224,9 @@ def get_title_and_text7(soup):
               lines.append(string)
         except Exception:
           pass
+  # Handle the case in which anything was found in the scripts   
+  if len(lines) == 0:
+    lines = ['N/A']
 
   return title, lines
 
