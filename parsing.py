@@ -87,19 +87,6 @@ def get_title_and_text6(html_: bytes) -> (str, str):
     return title, cleaned_text
 
 
-def clean_text(text: str) -> str:
-    """
-    Remove advertisements and other unwanted text from the article text
-    """
-    # If the only thing there is in a line is "Advertisement" or "Supported by", remove the line
-    lines = text.split('\n')
-    lines = [line for line in lines if 'Advertisement' not in line and 'Supported by' not in line]
-
-    # Remove sentences like "More on ..." or "More about [name]"
-    text = ' '.join(lines)
-
-    return text
-
 
 def save_extracted_txt(filename, title, content):
     with open(filename, "w", encoding="utf-8") as file:
