@@ -1,15 +1,13 @@
-'''
+"""
 Evaluation of the program with the ground truth data
-'''
-import json
-import time
+"""
 
 # # should install sentence-transformers
-from sentence_transformers import SentenceTransformer, util #SBERT
-from sklearn.feature_extraction.text import TfidfVectorizer #TF-IDF
+from sentence_transformers import SentenceTransformer  # SBERT
+from sklearn.feature_extraction.text import TfidfVectorizer  # TF-IDF
 from sklearn.metrics.pairwise import cosine_similarity
 import nltk
-from nltk.tokenize import word_tokenize, sent_tokenize
+from nltk.tokenize import word_tokenize
 # import numpy as np
 import matplotlib.pyplot as plt
 
@@ -32,8 +30,8 @@ def vectorize_doc(gt_str, own_str) -> (float, float):
     # embedding each doc with TF-IDF
     elif VECTOR_METHOD == 'TF-IDF':
         vectorizer = TfidfVectorizer()
-        gt_vec = vectorizer.fit_transform([gt_str,own_str])[0].toarray()[0]
-        own_vec = vectorizer.fit_transform([gt_str,own_str])[1].toarray()[0]
+        gt_vec = vectorizer.fit_transform([gt_str, own_str])[0].toarray()[0]
+        own_vec = vectorizer.fit_transform([gt_str, own_str])[1].toarray()[0]
         return gt_vec, own_vec
         
     else:
@@ -49,8 +47,8 @@ def edit_distance(str1, str2):
     m = len(str1)
     n = len(str2)
 
-    # Create a matrix to store results of subproblems
-    dp = [[0 for x in range(n + 1)] for x in range(m + 1)]
+    # Create a matrix to store results of sub-problems
+    dp = [[0 for _ in range(n + 1)] for _ in range(m + 1)]
 
     # Fill dp[][] in bottom up manner
     for i in range(m + 1):
@@ -78,7 +76,7 @@ def edit_distance(str1, str2):
     return dp[m][n]
 
 
-def normalization_edit_distance(str1, str2):
+def edit_distance_normalized(str1, str2):
     """
     Normalization edit distance between two strings
     Args:
@@ -106,11 +104,12 @@ def calc_edit_distance(gt_str, own_str):
     text_1 = word_tokenize(gt_str)
     text_2 = word_tokenize(own_str)
 
-    val = normalization_edit_distance(text_1, text_2)
+    val = edit_distance_normalized(text_1, text_2)
 
     return val
 
-def qualitative_result_switch(x):
+
+def qualitative_result_switch(x: float):
     try:
         if x > 0.8:
             return "high"
@@ -125,63 +124,67 @@ def qualitative_result_switch(x):
     except:
         return "Error in score value"
 
+
 def evaluate(gtname, filename):
     # TODO: this function as to be a wrapper for the evaluation metrics
     # TODO: we should decide a qualitative approach to differ the evaluation results in categories:
     #  - 0.8-1. high
-    #  -  0.6-0.8 medium
-    #  -  0.4-0.6 low
-    #  -  0.2-0.4 very low
+    #  - 0.6-0.8 medium
+    #  - 0.4-0.6 low
+    #  - 0.2-0.4 very low
     #  - 0-0.2 very very low
     # TODO: also decide how and which metrics combine to get the final evaluation result
     """
-    **Description:**
-        - Evaluate the extracted text with respect to the ground truth text.
-        - The evaluation is done using the following methods:
-            - Cosine similarity
-            - Edit distance
-            - Jaccard distance
-            - n-grams
-            - Longest common substring
+    Evaluates extracted text against the ground truth text using multiple methods.
+
+    This function compares the text retrieved from the website to the ground truth
+    text by employing several evaluation techniques, including:
+
+        - Cosine similarity
+        - Edit distance
+        - Jaccard distance
+        - n-grams
+        - Longest common substring
 
     Args:
-        gtname: ground truth filename
-        filename: text retrieved from the website
+        gtname (str): The filename containing the ground truth text.
+        filename (str): The filename containing the text retrieved from the website.
 
     Returns:
-        dict: evaluation results
+        A dictionary containing the evaluation results from each method.
     """
+
     gt_str = load_data(gtname)
     own_str = load_data(filename)
 
-    evaluation_results = {}
+    evaluation_results = {
+        # first evaluation method is cosine similarity (semantic similarity)
+        "cosine_similarity": cos_similarity(gt_str, own_str),
 
-    # first evaluation method is cosine similarity (semantic similarity)
-    evaluation_results["cosine_similarity"] = cos_similarity(gt_str, own_str)
+        # second evaluation method is edit distance (lexical similarity)
+        "normalized_edit_distance": calc_edit_distance(gt_str, own_str),
 
-    # second evaluation method is edit distance (lexical similarity)
-    evaluation_results["normalized_edit_distance"] = calc_edit_distance(gt_str, own_str)
+        # third evaluation method is Jaccard
+        "jaccard": nltk.jaccard_distance(set(word_tokenize(gt_str)), set(word_tokenize(own_str))),
 
-    # third evaluation method is Jaccard
-    evaluation_results["jaccard"] = nltk.jaccard_distance(set(word_tokenize(gt_str)), set(word_tokenize(own_str)))
-
-    # fourth evaluation method is n-grams
-    # TODO: implement the n-grams method
-    evaluation_results["n-grams"] = 0.
+        # fourth evaluation method is n-grams
+        # TODO: implement the n-grams method
+        "n-grams": 0.
+    }
 
     # list of weights for the evaluation methods
     weights = [0.25, 0.25, 0.25, 0.25]
 
-    # do a wheighted average of the first 4 evaluation results
-    evaluation_results["evaluation_score"] = weights[0] * evaluation_results["cosine_similarity"]
-    + weights[1] * (1 - evaluation_results["normalized_edit_distance"])
-    + weights[2] * (1 - evaluation_results["jaccard"])
-    + weights[3] * evaluation_results["n-grams"]
+    # do a weighted average of the first 4 evaluation results
+    evaluation_results["evaluation_score"] = (weights[0] * evaluation_results["cosine_similarity"]
+                                              + weights[1] * (1 - evaluation_results["normalized_edit_distance"])
+                                              + weights[2] * (1 - evaluation_results["jaccard"])
+                                              + weights[3] * evaluation_results["n-grams"])
 
-    # do a qualitiative evaluation of the evaluation score
+    # do a qualitative evaluation of the evaluation score
     evaluation_results["evaluation_score_qualitative"] = qualitative_result_switch(evaluation_results["evaluation_score"])
 
-    # fifth evaluation method is longest common substring
+    # fifth evaluation method is the longest common substring
     evaluation_results["partially_retrieve_metric"] = partially_retrieve_metrics(gt_str, own_str)
 
     return evaluation_results
@@ -213,9 +216,7 @@ def longest_common_substring(str1, str2):
 
     print("longest_common_substr:", longest_common_substr)
 
-
     return longest
-
 
 
 def calc_lcsb(gt_str, own_str):
@@ -225,6 +226,7 @@ def calc_lcsb(gt_str, own_str):
     val = longest_common_substring(text_1, text_2)
 
     return val
+
 
 def test_calc_lcsb():
     gt_str = load_data('data/01.txt')
@@ -237,6 +239,7 @@ def test_calc_lcsb():
     percentage = val / len(word_tokenize(gt_str)) * 100
 
     print("Percentage of LCS:", percentage)
+
 
 def plot_similarity_edit_distance():
     pre_path = 'scr__/BeautifulSoup_url'
@@ -253,17 +256,16 @@ def plot_similarity_edit_distance():
         text_1 = word_tokenize(load_data(gtname))
         text_2 = word_tokenize(load_data(filename))
 
-        similarities.append(1 - normalization_edit_distance(text_1, text_2))
+        similarities.append(1 - edit_distance_normalized(text_1, text_2))
         print(f"Similarity between {gtname} and {filename} is {similarities[-1]}")
 
-    # drew an histogram
+    # Draw a histogram
     plt.bar([f"Pair {i}" for i in range(1, 6)], similarities)
     plt.xlabel("Text Pairs")
     plt.ylabel("(1 - Edit Distance) Similarity")
     plt.title("(1 - Edit Distance) Similarity between Ground Truth and Extracted Texts")
 
     plt.show()
-
 
 
 def all_longest_common_substrings(tokens_list_1, tokens_list_2):
@@ -297,7 +299,7 @@ def all_longest_common_substrings(tokens_list_1, tokens_list_2):
             else:
                 dp[i][j] = 0  # Reset if no match
 
-    # Sort substrings by their length in descending order to prioritize longest matches
+    # Sort substrings by their length in descending order to prioritize the longest matches
     substrings.sort(reverse=True, key=lambda x: x[0])
 
     # To hold the final list of non-overlapping longest common substrings
@@ -312,11 +314,9 @@ def all_longest_common_substrings(tokens_list_1, tokens_list_2):
             # Add to the result
             non_overlapping_substrings.append(tokens_list_1[start_idx:end_idx])
             # Mark these indices as used
-            used_indices.update(range(start_idx, end_idx))
+            used_indices.update(iter(range(start_idx, end_idx)))
 
     return non_overlapping_substrings
-
-
 
 
 def partially_retrieve_metrics(text1, text2):
@@ -353,6 +353,8 @@ def partially_retrieve_metrics(text1, text2):
 
     # return the percentage of the longest common substrings that are longer than the threshold
     return sum_lcs / len(text_1)
+
+
 def plot_partially_retrieve_metrics():
     pre_path = 'scr__/BeautifulSoup_url'
 
@@ -371,11 +373,10 @@ def plot_partially_retrieve_metrics():
         similarities.append(partially_retrieve_metrics(text_1, text_2))
         print(f"Similarity between {gtname} and {filename} is {similarities[-1]}")
 
-    # drew an histogram
+    # Draw a histogram
     plt.bar([f"Pair {i}" for i in range(1, 6)], similarities)
     plt.xlabel("Text Pairs")
     plt.ylabel("Percentage of retrieved text")
     plt.title("Ratio of the sum of retrieved cs sizes to the gt size")
 
     plt.show()
-
