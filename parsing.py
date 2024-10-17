@@ -4,6 +4,8 @@ import lxml
 from readabilipy import simple_json_from_html_string
 from goose3 import Goose
 import pandas as pd
+import json
+import re
 # get the title and text of the HTML
 
 
