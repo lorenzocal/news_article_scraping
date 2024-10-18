@@ -4,18 +4,20 @@ from sklearn.preprocessing import RobustScaler
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
+from typing import List
 
-from parsing import get_title_and_text1, get_title_and_text2, get_title_and_text3
-from parsing_json import get_article_simple
+from parsing import get_title_and_text1, get_title_and_text2, get_title_and_text3, get_title_and_text4, get_title_and_text5, get_title_and_text6, get_title_and_text7
+import cleaning
+from fetching import get_article_simple
 
 # Load pre-trained Sentence-BERT model
 model = SentenceTransformer('paraphrase-MiniLM-L6-v2')
 
 
 # Function to compute coherence within a textual input
-def compute_coherence(title: str, text: str):
+def compute_coherence(title: str, text: List[str]) -> float:
     # Title and text are joined and processed together
-    text = " ".join([title, text])
+    text = " ".join([title + "."] + text)
 
     # Split text into sentences (other techniques may be used for splitting)
     sentences = text.split(".")
@@ -38,7 +40,10 @@ def compute_coherence(title: str, text: str):
 
 def get_optimal_title_text(url: str):
     # List of function defined in the parsing script
-    bag_of_functions = [get_title_and_text1, get_title_and_text2, get_title_and_text3]
+    bag_of_functions = [get_title_and_text1, get_title_and_text2, 
+                        get_title_and_text3, get_title_and_text4,
+                        get_title_and_text5, get_title_and_text6,
+                        get_title_and_text7]
 
     # Two fixed weights are defined for both coherence and abundance
     # We give more importance to the coherence in the text
@@ -53,6 +58,7 @@ def get_optimal_title_text(url: str):
     for i, function in enumerate(bag_of_functions):
         print("Running function", i)
         title, text = function(html)
+        # text = cleaning.clean_text_regressionmatching(title, text)
         coherence = compute_coherence(title, text)
         abundance = len(text)
 
@@ -76,8 +82,14 @@ def get_optimal_title_text(url: str):
     # Get the index of the row with the highest 'final_rank'
     max_rank_index = results['final_rank'].idxmax()
 
+    print("Chosen function:", max_rank_index)
+    print(results[['abundance', 'abundance_rank', 'coherence', 'coherence_rank', 'final_rank']])
+
     best_title = results.loc[max_rank_index, 'title']
     best_text = results.loc[max_rank_index, 'text']
+
+    # Clean the text by semantically similar sentences
+    best_text = cleaning.clean_article_semantics(best_title, best_text)
 
     return best_title, best_text
 
@@ -89,9 +101,13 @@ if __name__ == '__main__':
         'https://english.elpais.com/economy-and-business/2024-10-02/from-failed-inheritances-to-bad-investments-millionaires-who-lost-a-fortune.html'
     ]
 
-    for each_url in url_list:
-        title, text = get_optimal_title_text(each_url)
-        print("-----")
-        print('Title: ' + title)
-        print('Text: ' + text)
-        print('-----')
+    # for each_url in url_list:
+    #     title, text = get_optimal_title_text(each_url)
+    #     print("-----")
+    #     print(f'Title: {title}')
+    #     print(f'Text:  {text}')
+    #     print('-----')
+
+    title, text = get_optimal_title_text(url_list[0])
+    print(f'Title: {title}')
+    print(f'Text:  {"".join(text)}')

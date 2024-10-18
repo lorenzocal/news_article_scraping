@@ -1,6 +1,5 @@
 import spacy
 
-
 # Convert list of strings to article
 def los_to_article(list_: list[str]) -> str:
     return '\n'.join(list_)
@@ -22,7 +21,8 @@ def clean_article_semantics(title: str, paragraphs: list[str]) -> str:
     nlp_article_so_far = nlp(los_to_article(article_so_far))
 
     # Remove the title from the paragraphs
-    paragraphs.remove(title)
+    if title in paragraphs:
+        paragraphs.remove(title)
 
     # Remove paragraphs that are too short
     paragraphs = [paragraph for paragraph in paragraphs if len(paragraph) > 10]
@@ -51,14 +51,19 @@ def clean_article_semantics(title: str, paragraphs: list[str]) -> str:
     for paragraph in banned_paragraphs:
         article_so_far.remove(paragraph)
 
-    return los_to_article(article_so_far)
+    return article_so_far
 
-def clean_text_regressionmatching(title: str, paragraphs: list[str]) -> str:
+
+def clean_text_regressionmatching(title : str, paragraphs: list[str]) -> list[str]:
     """
     Remove advertisements and other unwanted text from the article's paragraphs
     in multiple languages (English, French, German, Italian), and also remove
     paragraphs that are too short.
     """
+
+    # Remove the title from the paragraphs
+    if title in paragraphs:
+        paragraphs.remove(title)
 
     # Define the unwanted phrases for removal (in multiple languages)
     unwanted_phrases = [
@@ -84,10 +89,8 @@ def clean_text_regressionmatching(title: str, paragraphs: list[str]) -> str:
     ]
 
     # Combine the cleaned paragraphs with the title and return as a single string
-    return title + '\n' + '\n'.join(filtered_paragraphs)
+    return filtered_paragraphs
 
-    
-    
 
 # Other idea
 # Iteratively add paragraphs to the article until the similarity between the article and the article with the new paragraph is less than 0.9
