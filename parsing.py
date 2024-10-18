@@ -4,6 +4,7 @@
 #!pip install goose3        #
 # ###### ####### ######  ####
 
+from typing import Tuple
 from bs4 import BeautifulSoup
 from newspaper import Article
 import lxml
@@ -15,7 +16,7 @@ import re
 # get the title and text of the HTML
 
 # get texts with beautifulsoup : extract whole texts
-def get_title_and_text1(html: bytes) -> (str, list[str]):
+def get_title_and_text1(html: bytes) -> Tuple[str, list[str]]:
     # Parse the HTML content
     soup = BeautifulSoup(html, 'html.parser')
 
@@ -30,7 +31,7 @@ def get_title_and_text1(html: bytes) -> (str, list[str]):
 
 
 # get texts with beautifulsoup : extract only 'p tag' text
-def get_title_and_text2(html_: bytes) -> (str, list[str]):
+def get_title_and_text2(html_: bytes) -> Tuple[str, list[str]]:
     # Parse the HTML content
     soup = BeautifulSoup(html_, 'html.parser')
 
@@ -45,7 +46,7 @@ def get_title_and_text2(html_: bytes) -> (str, list[str]):
 
 
 # get texts with newspaper3k
-def get_title_and_text3(html_: bytes) -> (str, list[str]):
+def get_title_and_text3(html_: bytes) -> Tuple[str, list[str]]:
     article = Article(url='')
     html_str = html_.decode('utf-8')  # Convert bytes to string
 
@@ -61,7 +62,7 @@ def get_title_and_text3(html_: bytes) -> (str, list[str]):
     return title, lines
 
 
-def get_title_and_text4(html_: bytes) -> (str, list[str]):
+def get_title_and_text4(html_: bytes) -> Tuple[str, list[str]]:
     # Convert bytes to string with error handling for encoding issues
     html_str = html_.decode('utf-8', errors='ignore')
     
@@ -78,7 +79,7 @@ def get_title_and_text4(html_: bytes) -> (str, list[str]):
     return title, lines
 
 
-def get_title_and_text5(html_content: bytes) -> (str, list[str]):
+def get_title_and_text5(html_content: bytes) -> Tuple[str, list[str]]:
 
     # Convert bytes to string and handle decoding issues
     html_str = html_content.decode('utf-8')
@@ -102,7 +103,7 @@ def get_title_and_text5(html_content: bytes) -> (str, list[str]):
     return title, lines
 
 
-def get_title_and_text6(html_: bytes) -> (str, list[str]):
+def get_title_and_text6(html_: bytes) -> Tuple[str, list[str]]:
     # Ensure the HTML content is decoded
     html_str = html_.decode('utf-8', 'ignore')
 
@@ -123,7 +124,7 @@ def get_title_and_text6(html_: bytes) -> (str, list[str]):
 
     return title, lines
 
-def get_title_and_text7(soup):
+def get_title_and_text7(soup) -> Tuple[str, list[str]]:
 
   # Returns True if the input is JSON structured data, False otherwise
   def is_json(text):
