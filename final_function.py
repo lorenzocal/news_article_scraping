@@ -76,11 +76,11 @@ def get_optimal_title_text(url: str):
     results['abundance'] = scaler.fit_transform(results[['abundance']])
 
     # Assign a rank score to coherence and abundance (the higher the better)
-    results['coherence_rank'] = results['coherence'].rank(ascending=True, method='dense').astype(int)
-    results['abundance_rank'] = results['abundance'].rank(ascending=True, method='dense').astype(int)
+    #results['coherence_rank'] = results['coherence'].rank(ascending=True, method='dense').astype(int)
+    #results['abundance_rank'] = results['abundance'].rank(ascending=True, method='dense').astype(int)
 
     # The final rank is the weighted average of the two ranks
-    results['final_rank'] = COHERENCE_WEIGHT * results['coherence_rank'] + ABUNDANCE_WEIGHT * results['abundance_rank']
+    results['final_rank'] = COHERENCE_WEIGHT * results['coherence'] + ABUNDANCE_WEIGHT * results['abundance']
 
     # Get the index of the row with the highest 'final_rank'
     max_rank_index = results['final_rank'].idxmax()

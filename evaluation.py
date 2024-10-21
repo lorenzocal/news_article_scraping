@@ -14,7 +14,8 @@ from nltk import jaccard_distance, ngrams
 import matplotlib.pyplot as plt
 
 
-VECTOR_METHOD = "SBERT"
+VECTOR_METHOD = "TF-IDF"
+NGRAM_N = 2
 
 
 def load_data(filename):
@@ -323,31 +324,26 @@ def plot_partially_retrieve_metrics():
     plt.show()
 
 
-# def n_grams(text1: str, text2: str, n: int) -> dict[str, list[tuple] | Counter | float]:
-#     tokens1 = word_tokenize(text1.lower())  # Tokenize and lowercased text
-#     tokens2 = word_tokenize(text2.lower())  # Tokenize and lowercased text
-#     ngrams1 = list(ngrams(tokens1, n))
-#     ngrams2 = list(ngrams(tokens2, n))
-#
-#     # Count frequency of each n-gram in both texts
-#     counter1 = Counter(ngrams1)
-#     counter2 = Counter(ngrams2)
-#
-#     # Find common n-grams between both texts
-#     common_ngrams = counter1 & counter2  # Intersection: min of counts
-#
-#     # Calculate the total number of n-grams for similarity
-#     total_ngrams = len(ngrams1) + len(ngrams2)
-#     common_count = sum(common_ngrams.values())
-#
-#     similarity = (2 * common_count) / total_ngrams if total_ngrams > 0 else 0
-#
-#     return {
-#         "ngrams1": ngrams1,
-#         "ngrams2": ngrams2,
-#         "common_ngrams": common_ngrams,
-#         "similarity": similarity
-#     }
+def n_grams(text1: str, text2: str, n: int) -> dict[str, list[tuple] | Counter | float]:
+    tokens1 = word_tokenize(text1.lower())  # Tokenize and lowercased text
+    tokens2 = word_tokenize(text2.lower())  # Tokenize and lowercased text
+    ngrams1 = list(ngrams(tokens1, n))
+    ngrams2 = list(ngrams(tokens2, n))
+
+    # Count frequency of each n-gram in both texts
+    counter1 = Counter(ngrams1)
+    counter2 = Counter(ngrams2)
+
+    # Find common n-grams between both texts
+    common_ngrams = counter1 & counter2  # Intersection: min of counts
+
+    # Calculate the total number of n-grams for similarity
+    total_ngrams = len(ngrams1) + len(ngrams2)
+    common_count = sum(common_ngrams.values())
+
+    similarity = (2 * common_count) / total_ngrams if total_ngrams > 0 else 0
+
+    return similarity #{"ngrams1": ngrams1, "ngrams2": ngrams2, "common_ngrams": common_ngrams, "similarity": similarity}
 
 
 def evaluate(gtname, filename):
@@ -394,17 +390,17 @@ def evaluate(gtname, filename):
 
     evaluation_results = {
         # first evaluation method is cosine similarity (semantic similarity)
-        "cosine_similarity": 0.5, # just for testing
+        "cosine_similarity": cos_similarity(gt_str, own_str), # just for testing
 
         # second evaluation method is edit distance (lexical similarity)
-        "normalized_edit_distance": calc_edit_distance(gt_str, own_str),
+        "1 - normalized_edit_distance": 1-calc_edit_distance(gt_str, own_str),
 
         # third evaluation method is Jaccard
-        "jaccard": jaccard_distance(set(word_tokenize(gt_str)), set(word_tokenize(own_str))),
+        "1 - jaccard": 1-jaccard_distance(set(word_tokenize(gt_str)), set(word_tokenize(own_str))),
 
         # fourth evaluation method is n-grams
         # TODO: implement the n-grams method
-        "n-grams": 0.5  # just for testing
+        "n-grams": n_grams(gt_str, own_str, NGRAM_N)  # just for testing
     }
 
     # list of weights for the evaluation methods
@@ -412,8 +408,8 @@ def evaluate(gtname, filename):
 
     # do a weighted average of the first 4 evaluation results
     evaluation_results["evaluation_score"] = (weights[0] * evaluation_results["cosine_similarity"]
-                                              + weights[1] * (1 - evaluation_results["normalized_edit_distance"])
-                                              + weights[2] * (1 - evaluation_results["jaccard"])
+                                              + weights[1] * (evaluation_results["1 - normalized_edit_distance"])
+                                              + weights[2] * (evaluation_results["1 - jaccard"])
                                               + weights[3] * evaluation_results["n-grams"])
 
     # do a qualitative evaluation of the evaluation score

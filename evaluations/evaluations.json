@@ -1,0 +1,400 @@
+{
+    "evaluations": [
+        {
+            "https://www.nytimes.com/2024/09/29/us/north-carolina-helene-relief-damage.html": {
+                "cosine_similarity": 0.9941,
+                "1 - normalized_edit_distance": 0.8596,
+                "1 - jaccard": 0.8686,
+                "n-grams": 0.8957,
+                "evaluation_score": 0.9045,
+                "evaluation_score_qualitative": "high",
+                "partially_retrieve_metric": 0.9649
+            }
+        },
+        {
+            "https://www.faz.net/aktuell/wirtschaft/kuenstliche-intelligenz/today-s-ai-can-t-be-trusted-19532136.html": {
+                "cosine_similarity": 0.472,
+                "1 - normalized_edit_distance": 0.0389,
+                "1 - jaccard": 0.1346,
+                "n-grams": 0.1175,
+                "evaluation_score": 0.1908,
+                "evaluation_score_qualitative": "very very low",
+                "partially_retrieve_metric": 0.0556
+            }
+        },
+        {
+            "http://www.chinatoday.com.cn/ctenglish/2018/commentaries/202409/t20240925_800378506.html": {
+                "cosine_similarity": 0.9974,
+                "1 - normalized_edit_distance": 0.9255,
+                "1 - jaccard": 0.9374,
+                "n-grams": 0.9449,
+                "evaluation_score": 0.9513,
+                "evaluation_score_qualitative": "high",
+                "partially_retrieve_metric": 0.9886
+            }
+        },
+        {
+            "https://english.elpais.com/economy-and-business/2024-09-28/from-the-hermes-heir-to-nicolas-cage-millionaires-who-went-bankrupt.html": {
+                "cosine_similarity": 0.9925,
+                "1 - normalized_edit_distance": 0.8396,
+                "1 - jaccard": 0.8905,
+                "n-grams": 0.8933,
+                "evaluation_score": 0.904,
+                "evaluation_score_qualitative": "high",
+                "partially_retrieve_metric": 0.8614
+            }
+        },
+        {
+            "https://insatiable.info/2023/06/30/quels-futur-pour-les-reseaux-sociaux/": {
+                "cosine_similarity": 0.7854,
+                "1 - normalized_edit_distance": 0.6657,
+                "1 - jaccard": 0.385,
+                "n-grams": 0.5574,
+                "evaluation_score": 0.5984,
+                "evaluation_score_qualitative": "low",
+                "partially_retrieve_metric": 0.2318
+            }
+        },
+        {
+            "https://actu.fr/auvergne-rhone-alpes/lyon_69123/lyon-le-projet-de-reamenagement-des-quais-les-plus-mortels-pour-les-cyclistes-devoile_61667371.html": {
+                "cosine_similarity": 0.9364,
+                "1 - normalized_edit_distance": 0.5854,
+                "1 - jaccard": 0.5941,
+                "n-grams": 0.7027,
+                "evaluation_score": 0.7047,
+                "evaluation_score_qualitative": "medium",
+                "partially_retrieve_metric": 0.8931
+            }
+        },
+        {
+            "https://www.nytimes.com/2024/09/29/us/north-carolina-helene-relief-damage.html": {
+                "cosine_similarity": 0.9941,
+                "1 - normalized_edit_distance": 0.8596,
+                "1 - jaccard": 0.8686,
+                "n-grams": 0.8957,
+                "evaluation_score": 0.9045,
+                "evaluation_score_qualitative": "high",
+                "partially_retrieve_metric": 0.9649
+            }
+        },
+        {
+            "https://www.faz.net/aktuell/wirtschaft/kuenstliche-intelligenz/today-s-ai-can-t-be-trusted-19532136.html": {
+                "cosine_similarity": 0.472,
+                "1 - normalized_edit_distance": 0.0389,
+                "1 - jaccard": 0.1346,
+                "n-grams": 0.1175,
+                "evaluation_score": 0.1908,
+                "evaluation_score_qualitative": "very very low",
+                "partially_retrieve_metric": 0.0556
+            }
+        },
+        {
+            "http://www.chinatoday.com.cn/ctenglish/2018/commentaries/202409/t20240925_800378506.html": {
+                "cosine_similarity": 0.9974,
+                "1 - normalized_edit_distance": 0.9255,
+                "1 - jaccard": 0.9374,
+                "n-grams": 0.9449,
+                "evaluation_score": 0.9513,
+                "evaluation_score_qualitative": "high",
+                "partially_retrieve_metric": 0.9886
+            }
+        },
+        {
+            "https://english.elpais.com/economy-and-business/2024-09-28/from-the-hermes-heir-to-nicolas-cage-millionaires-who-went-bankrupt.html": {
+                "cosine_similarity": 0.9925,
+                "1 - normalized_edit_distance": 0.8396,
+                "1 - jaccard": 0.8905,
+                "n-grams": 0.8933,
+                "evaluation_score": 0.904,
+                "evaluation_score_qualitative": "high",
+                "partially_retrieve_metric": 0.8614
+            }
+        },
+        {
+            "https://insatiable.info/2023/06/30/quels-futur-pour-les-reseaux-sociaux/": {
+                "cosine_similarity": 0.7854,
+                "1 - normalized_edit_distance": 0.6657,
+                "1 - jaccard": 0.385,
+                "n-grams": 0.5574,
+                "evaluation_score": 0.5984,
+                "evaluation_score_qualitative": "low",
+                "partially_retrieve_metric": 0.2318
+            }
+        },
+        {
+            "https://actu.fr/auvergne-rhone-alpes/lyon_69123/lyon-le-projet-de-reamenagement-des-quais-les-plus-mortels-pour-les-cyclistes-devoile_61667371.html": {
+                "cosine_similarity": 0.9364,
+                "1 - normalized_edit_distance": 0.5854,
+                "1 - jaccard": 0.5941,
+                "n-grams": 0.7027,
+                "evaluation_score": 0.7047,
+                "evaluation_score_qualitative": "medium",
+                "partially_retrieve_metric": 0.8931
+            }
+        },
+        {
+            "https://www.nytimes.com/2024/09/29/us/north-carolina-helene-relief-damage.html": {
+                "cosine_similarity": 0.9941,
+                "1 - normalized_edit_distance": 0.8596,
+                "1 - jaccard": 0.8686,
+                "n-grams": 0.8957,
+                "evaluation_score": 0.9045,
+                "evaluation_score_qualitative": "high",
+                "partially_retrieve_metric": 0.9649
+            }
+        },
+        {
+            "https://www.faz.net/aktuell/wirtschaft/kuenstliche-intelligenz/today-s-ai-can-t-be-trusted-19532136.html": {
+                "cosine_similarity": 0.472,
+                "1 - normalized_edit_distance": 0.0389,
+                "1 - jaccard": 0.1346,
+                "n-grams": 0.1175,
+                "evaluation_score": 0.1908,
+                "evaluation_score_qualitative": "very very low",
+                "partially_retrieve_metric": 0.0556
+            }
+        },
+        {
+            "http://www.chinatoday.com.cn/ctenglish/2018/commentaries/202409/t20240925_800378506.html": {
+                "cosine_similarity": 0.9974,
+                "1 - normalized_edit_distance": 0.9255,
+                "1 - jaccard": 0.9374,
+                "n-grams": 0.9449,
+                "evaluation_score": 0.9513,
+                "evaluation_score_qualitative": "high",
+                "partially_retrieve_metric": 0.9886
+            }
+        },
+        {
+            "https://english.elpais.com/economy-and-business/2024-09-28/from-the-hermes-heir-to-nicolas-cage-millionaires-who-went-bankrupt.html": {
+                "cosine_similarity": 0.9925,
+                "1 - normalized_edit_distance": 0.8396,
+                "1 - jaccard": 0.8905,
+                "n-grams": 0.8933,
+                "evaluation_score": 0.904,
+                "evaluation_score_qualitative": "high",
+                "partially_retrieve_metric": 0.8614
+            }
+        },
+        {
+            "https://insatiable.info/2023/06/30/quels-futur-pour-les-reseaux-sociaux/": {
+                "cosine_similarity": 0.7854,
+                "1 - normalized_edit_distance": 0.6657,
+                "1 - jaccard": 0.385,
+                "n-grams": 0.5574,
+                "evaluation_score": 0.5984,
+                "evaluation_score_qualitative": "low",
+                "partially_retrieve_metric": 0.2318
+            }
+        },
+        {
+            "https://actu.fr/auvergne-rhone-alpes/lyon_69123/lyon-le-projet-de-reamenagement-des-quais-les-plus-mortels-pour-les-cyclistes-devoile_61667371.html": {
+                "cosine_similarity": 0.9364,
+                "1 - normalized_edit_distance": 0.5854,
+                "1 - jaccard": 0.5941,
+                "n-grams": 0.7027,
+                "evaluation_score": 0.7047,
+                "evaluation_score_qualitative": "medium",
+                "partially_retrieve_metric": 0.8931
+            }
+        },
+        {
+            "https://www.nytimes.com/2024/09/29/us/north-carolina-helene-relief-damage.html": {
+                "cosine_similarity": 0.9941,
+                "1 - normalized_edit_distance": 0.8596,
+                "1 - jaccard": 0.8686,
+                "n-grams": 0.8957,
+                "evaluation_score": 0.9045,
+                "evaluation_score_qualitative": "high",
+                "partially_retrieve_metric": 0.9649
+            }
+        },
+        {
+            "https://www.faz.net/aktuell/wirtschaft/kuenstliche-intelligenz/today-s-ai-can-t-be-trusted-19532136.html": {
+                "cosine_similarity": 0.472,
+                "1 - normalized_edit_distance": 0.0389,
+                "1 - jaccard": 0.1346,
+                "n-grams": 0.1175,
+                "evaluation_score": 0.1908,
+                "evaluation_score_qualitative": "very very low",
+                "partially_retrieve_metric": 0.0556
+            }
+        },
+        {
+            "http://www.chinatoday.com.cn/ctenglish/2018/commentaries/202409/t20240925_800378506.html": {
+                "cosine_similarity": 0.9974,
+                "1 - normalized_edit_distance": 0.9255,
+                "1 - jaccard": 0.9374,
+                "n-grams": 0.9449,
+                "evaluation_score": 0.9513,
+                "evaluation_score_qualitative": "high",
+                "partially_retrieve_metric": 0.9886
+            }
+        },
+        {
+            "https://english.elpais.com/economy-and-business/2024-09-28/from-the-hermes-heir-to-nicolas-cage-millionaires-who-went-bankrupt.html": {
+                "cosine_similarity": 0.9925,
+                "1 - normalized_edit_distance": 0.8396,
+                "1 - jaccard": 0.8905,
+                "n-grams": 0.8933,
+                "evaluation_score": 0.904,
+                "evaluation_score_qualitative": "high",
+                "partially_retrieve_metric": 0.8614
+            }
+        },
+        {
+            "https://insatiable.info/2023/06/30/quels-futur-pour-les-reseaux-sociaux/": {
+                "cosine_similarity": 0.7854,
+                "1 - normalized_edit_distance": 0.6657,
+                "1 - jaccard": 0.385,
+                "n-grams": 0.5574,
+                "evaluation_score": 0.5984,
+                "evaluation_score_qualitative": "low",
+                "partially_retrieve_metric": 0.2318
+            }
+        },
+        {
+            "https://actu.fr/auvergne-rhone-alpes/lyon_69123/lyon-le-projet-de-reamenagement-des-quais-les-plus-mortels-pour-les-cyclistes-devoile_61667371.html": {
+                "cosine_similarity": 0.9364,
+                "1 - normalized_edit_distance": 0.5854,
+                "1 - jaccard": 0.5941,
+                "n-grams": 0.7027,
+                "evaluation_score": 0.7047,
+                "evaluation_score_qualitative": "medium",
+                "partially_retrieve_metric": 0.8931
+            }
+        },
+        {
+            "https://www.nytimes.com/2024/09/29/us/north-carolina-helene-relief-damage.html": {
+                "cosine_similarity": 0.7256,
+                "1 - normalized_edit_distance": 0.1254,
+                "1 - jaccard": 0.2063,
+                "n-grams": 0.2221,
+                "evaluation_score": 0.3199,
+                "evaluation_score_qualitative": "very low",
+                "partially_retrieve_metric": 0.1207
+            }
+        },
+        {
+            "https://www.faz.net/aktuell/wirtschaft/kuenstliche-intelligenz/today-s-ai-can-t-be-trusted-19532136.html": {
+                "cosine_similarity": 0.6274,
+                "1 - normalized_edit_distance": 0.0642,
+                "1 - jaccard": 0.146,
+                "n-grams": 0.1204,
+                "evaluation_score": 0.2395,
+                "evaluation_score_qualitative": "very low",
+                "partially_retrieve_metric": 0.0556
+            }
+        },
+        {
+            "http://www.chinatoday.com.cn/ctenglish/2018/commentaries/202409/t20240925_800378506.html": {
+                "cosine_similarity": 0.9974,
+                "1 - normalized_edit_distance": 0.9255,
+                "1 - jaccard": 0.9374,
+                "n-grams": 0.9449,
+                "evaluation_score": 0.9513,
+                "evaluation_score_qualitative": "high",
+                "partially_retrieve_metric": 0.9886
+            }
+        },
+        {
+            "https://english.elpais.com/economy-and-business/2024-09-28/from-the-hermes-heir-to-nicolas-cage-millionaires-who-went-bankrupt.html": {
+                "cosine_similarity": 0.9914,
+                "1 - normalized_edit_distance": 0.8213,
+                "1 - jaccard": 0.8596,
+                "n-grams": 0.8678,
+                "evaluation_score": 0.885,
+                "evaluation_score_qualitative": "high",
+                "partially_retrieve_metric": 0.7985
+            }
+        },
+        {
+            "https://insatiable.info/2023/06/30/quels-futur-pour-les-reseaux-sociaux/": {
+                "cosine_similarity": 0.7652,
+                "1 - normalized_edit_distance": 0.7673,
+                "1 - jaccard": 0.4232,
+                "n-grams": 0.5992,
+                "evaluation_score": 0.6387,
+                "evaluation_score_qualitative": "medium",
+                "partially_retrieve_metric": 0.2318
+            }
+        },
+        {
+            "https://actu.fr/auvergne-rhone-alpes/lyon_69123/lyon-le-projet-de-reamenagement-des-quais-les-plus-mortels-pour-les-cyclistes-devoile_61667371.html": {
+                "cosine_similarity": 0.9834,
+                "1 - normalized_edit_distance": 0.7665,
+                "1 - jaccard": 0.8483,
+                "n-grams": 0.8451,
+                "evaluation_score": 0.8608,
+                "evaluation_score_qualitative": "high",
+                "partially_retrieve_metric": 0.9178
+            }
+        },
+        {
+            "https://www.nytimes.com/2024/09/29/us/north-carolina-helene-relief-damage.html": {
+                "cosine_similarity": 0.9941,
+                "1 - normalized_edit_distance": 0.8596,
+                "1 - jaccard": 0.8686,
+                "n-grams": 0.8957,
+                "evaluation_score": 0.9045,
+                "evaluation_score_qualitative": "high",
+                "partially_retrieve_metric": 0.9649
+            }
+        },
+        {
+            "https://www.faz.net/aktuell/wirtschaft/kuenstliche-intelligenz/today-s-ai-can-t-be-trusted-19532136.html": {
+                "cosine_similarity": 0.472,
+                "1 - normalized_edit_distance": 0.0389,
+                "1 - jaccard": 0.1346,
+                "n-grams": 0.1175,
+                "evaluation_score": 0.1908,
+                "evaluation_score_qualitative": "very very low",
+                "partially_retrieve_metric": 0.0556
+            }
+        },
+        {
+            "http://www.chinatoday.com.cn/ctenglish/2018/commentaries/202409/t20240925_800378506.html": {
+                "cosine_similarity": 0.9974,
+                "1 - normalized_edit_distance": 0.9255,
+                "1 - jaccard": 0.9374,
+                "n-grams": 0.9449,
+                "evaluation_score": 0.9513,
+                "evaluation_score_qualitative": "high",
+                "partially_retrieve_metric": 0.9886
+            }
+        },
+        {
+            "https://english.elpais.com/economy-and-business/2024-09-28/from-the-hermes-heir-to-nicolas-cage-millionaires-who-went-bankrupt.html": {
+                "cosine_similarity": 0.9925,
+                "1 - normalized_edit_distance": 0.8396,
+                "1 - jaccard": 0.8905,
+                "n-grams": 0.8933,
+                "evaluation_score": 0.904,
+                "evaluation_score_qualitative": "high",
+                "partially_retrieve_metric": 0.8614
+            }
+        },
+        {
+            "https://insatiable.info/2023/06/30/quels-futur-pour-les-reseaux-sociaux/": {
+                "cosine_similarity": 0.7854,
+                "1 - normalized_edit_distance": 0.6657,
+                "1 - jaccard": 0.385,
+                "n-grams": 0.5574,
+                "evaluation_score": 0.5984,
+                "evaluation_score_qualitative": "low",
+                "partially_retrieve_metric": 0.2318
+            }
+        },
+        {
+            "https://actu.fr/auvergne-rhone-alpes/lyon_69123/lyon-le-projet-de-reamenagement-des-quais-les-plus-mortels-pour-les-cyclistes-devoile_61667371.html": {
+                "cosine_similarity": 0.9364,
+                "1 - normalized_edit_distance": 0.5854,
+                "1 - jaccard": 0.5941,
+                "n-grams": 0.7027,
+                "evaluation_score": 0.7047,
+                "evaluation_score_qualitative": "medium",
+                "partially_retrieve_metric": 0.8931
+            }
+        }
+    ]
+}

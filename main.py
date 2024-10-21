@@ -9,8 +9,8 @@ The evaluation function will evaluate the text of the article with respect with 
 """
 import os
 
+import matplotlib.pyplot as plt
 from fetching import get_url_list
-
 import evaluation
 import fetching
 import final_function
@@ -78,19 +78,81 @@ def print_evaluation_in_json(evaluation, index):
         with open(file_path, "w") as file:
             json.dump({"evaluations": [result]}, file, indent=4)
 
+def save_graph_evaluation(evaluation, index):
 
-index = 3
-scraped_path = scrape_text_and_save(index)
+    directory = "./eval_graphs"
+    if not os.path.exists(directory):
+        os.makedirs(directory)
 
-#  Evaluate the text
-# TODO: parse and decide how to plot the evaluation
-gt_path = "./data/GroundTruth/0{}.txt".format(index+1)
-evaluation = evaluation.evaluate(gt_path, scraped_path)
+    x = ['cos_sim', 'edit_d', 'jaccard', 'ngrams', 'total', 'part']
+    y = list(evaluation.values())
+    y_quant = y[5]
+    y.pop(5)
 
-print("Evaluation:")
-print(evaluation)
+    plt.bar(x, y)
+    plt.title(f"article_no.{index}")
+    plt.xlabel("evaluation metrics")
+    plt.ylabel("normalized similarities")
+    plt.ylim(0, 1.1)
+    plt.grid(axis='y')
+    for j, value in enumerate(y):
+        plt.text(j, value, f'{value:.3f}', ha='center', va='bottom')
 
-print_evaluation_in_json(evaluation, index)
+    plt.savefig(f"{directory}/article_no_{index}.png")    
+    plt.clf()
+    plt.close()
+
+def save_metrics_graph(alls):
+    metrics = ['cos_sim', 'edit_d', 'jaccard', 'ngrams', 'total', 'part']
+    for k in range(len(metrics)):
+        directory = "./eval_graphs_metrics"
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+
+        articles = []
+        for l in range(len(fetching.get_url_list())):
+            articles.append(all_evals[l][k])
+
+        x = ['article1', 'article2', 'article3', 'article4', 'article5', 'article6']
+        y = articles
+
+        plt.bar(x, y)
+        plt.title(f"metric = {metrics[k]}")
+        plt.xlabel("articles")
+        plt.ylabel(f"{metrics[k]}_similarities")
+        plt.ylim(0, 1.1)
+        plt.grid(axis='y')
+        for j, value in enumerate(y):
+            plt.text(j, value, f'{value:.3f}', ha='center', va='bottom')
+
+        plt.savefig(f"{directory}/metric_{metrics[k]}.png")    
+        plt.clf()
+        plt.close()
+
+
+all_evals = []
+for i in range(len(fetching.get_url_list())):
+    print(f"article_{i} starts")
+    scraped_path = scrape_text_and_save(i)
+
+    #  Evaluate the text
+    # TODO: parse and decide how to plot the evaluation
+    gt_path = "./data/GroundTruth/0{}.txt".format(i+1)
+    final_eval = evaluation.evaluate(gt_path, scraped_path)
+
+    print("Evaluation:")
+    print(final_eval)
+
+    print_evaluation_in_json(final_eval, i)
+    save_graph_evaluation(final_eval, i)
+
+    evals2 = list(final_eval.values())
+    evals2.pop(5)
+    all_evals.append(evals2)
+    print('====================================\n\n')
+
+save_metrics_graph(all_evals)
+
 
 # =======================================================================================================================
 # GET ALL ARTICLES AND SAVE THEM TO TEXT
