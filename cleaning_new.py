@@ -3,7 +3,7 @@ import spacy
 # Combined function that cleans the article by removing unwanted paragraphs and 
 # filtering the content based on semantic similarity
 
-def clean_article(title: str, paragraphs: list[str]) -> str:
+def clean_article_semantics(title: str, paragraphs: list[str]) -> str:
     """
     Clean the article by first removing unwanted advertisements or phrases in multiple languages,
     and then applying semantic similarity filtering to retain only coherent paragraphs.
