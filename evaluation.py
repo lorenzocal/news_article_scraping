@@ -248,8 +248,10 @@ def all_longest_common_substrings(tokens_list_1, tokens_list_2):
 
         # Ensure no overlap with already selected substrings
         if all(idx not in used_indices for idx in range(start_idx, end_idx)):
-            # Add to the result
-            non_overlapping_substrings.append(tokens_list_1[start_idx:end_idx])
+            string_to_add = tokens_list_1[start_idx:end_idx]
+            if string_to_add not in non_overlapping_substrings and len(string_to_add) > 3:
+                non_overlapping_substrings.append(string_to_add)
+
             # Mark these indices as used
             used_indices.update(iter(range(start_idx, end_idx)))
 
@@ -273,7 +275,7 @@ def partially_retrieve_metrics(text1: str, text2: str):
     Returns:
         The percentage of the longest common substrings that are longer than the threshold
     """
-    threshold = 0.05
+    threshold = 0.01
 
     text_1 = word_tokenize(text1)
     text_2 = word_tokenize(text2)
