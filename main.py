@@ -9,9 +9,7 @@ The evaluation function will evaluate the text of the article with respect with 
 """
 import os
 
-from evaluation import evaluate
-from fetching import get_article_simple, get_url_list
-import parsing
+from fetching import get_url_list
 
 import evaluation
 import fetching
@@ -19,11 +17,11 @@ import final_function
 import json
 
 
-def print_retrieve_text(url_index, title, texts):
+def print_and_save_retrieved_text(url_index, title, texts):
     print("Title:", title)
     print("Text:")
     print(texts)
-    name_file = "retrieved_article{}.txt".format(url_index)
+    name_file = f"retrieved_article{url_index}.txt"
 
     file_path = "./retrieved_articles/" + name_file
 
@@ -65,15 +63,24 @@ def print_evaluation_in_json(evaluation, index):
     with open("./evaluations/evaluations.json", "a") as file:
         json.dump(result, file, indent=4)
 
-index = 1
-scraped_path = scrape_text_and_save(index)
+# index = 1
+# scraped_path = scrape_text_and_save(index)
 
-#  Evaluate the text
-# TODO: parse and decide how to plot the evaluation
-gt_path = "./data/GroundTruth/0{}.txt".format(index+1)
-evaluation = evaluation.evaluate(gt_path, scraped_path)
+# #  Evaluate the text
+# # TODO: parse and decide how to plot the evaluation
+# gt_path = "./data/GroundTruth/0{}.txt".format(index+1)
+# eval = evaluation.evaluate(gt_path, scraped_path)
 
-print("Evaluation:")
-print(evaluation)
+# print("Evaluation:")
+# print(eval)
 
-print_evaluation_in_json(evaluation, index)
+# print_evaluation_in_json(eval, index)
+
+#=======================================================================================================================
+# GET ALL ARTICLES AND SAVE THEM TO TEXT
+# url_list = get_url_list()
+
+# for i, url in enumerate(url_list) :
+#     print(f"Processing URL {i}: {url}")
+#     title, text = final_function.get_optimal_title_text(url)
+#     print_and_save_retrieved_text(i, title, text)
