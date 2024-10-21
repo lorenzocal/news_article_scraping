@@ -4,18 +4,18 @@ from sklearn.preprocessing import RobustScaler
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
-from typing import List
+import json
 
 from parsing import get_title_and_text1, get_title_and_text2, get_title_and_text3, get_title_and_text4, get_title_and_text5, get_title_and_text6, get_title_and_text7
 import cleaning
-from fetching import get_article_simple
+from fetching import get_article_simple, get_url_list
 
 # Load pre-trained Sentence-BERT model
 model = SentenceTransformer('paraphrase-MiniLM-L6-v2')
 
 
 # Function to compute coherence within a textual input
-def compute_coherence(title: str, text: List[str]) -> float:
+def compute_coherence(title: str, text: list[str]) -> float:
     # Title and text are joined and processed together
     text = " ".join([title + "."] + text)
 
@@ -57,16 +57,19 @@ def get_optimal_title_text(url: str):
 
     for i, function in enumerate(bag_of_functions):
         print("Running function", i)
-        title, text = function(html)
-        # text = cleaning.clean_text_regressionmatching(title, text)
-        coherence = compute_coherence(title, text)
-        abundance = len(text)
+        try : 
+            title, text = function(html)
+            # text = cleaning.clean_text_regressionmatching(title, text)
+            coherence = compute_coherence(title, text)
+            abundance = len(text)
 
-        # New result row to be added to the dataframe
-        new_row = pd.DataFrame([{'title': title, 'text': text, 'coherence': coherence, 'abundance': abundance}])
+            # New result row to be added to the dataframe
+            new_row = pd.DataFrame([{'title': title, 'text': text, 'coherence': coherence, 'abundance': abundance}])
 
-        # Concatenate the new row with the existing DataFrame
-        results = pd.concat([results, new_row], ignore_index=True)
+            # Concatenate the new row with the existing DataFrame
+            results = pd.concat([results, new_row], ignore_index=True)
+        except Exception as e:
+            print(f"Function {i} failed.")
 
     # Apply Robust Scaling to 'abundance' column
     scaler = RobustScaler()
@@ -83,7 +86,7 @@ def get_optimal_title_text(url: str):
     max_rank_index = results['final_rank'].idxmax()
 
     print("Chosen function:", max_rank_index)
-    print(results[['abundance', 'abundance_rank', 'coherence', 'coherence_rank', 'final_rank']])
+    # print(results[['abundance', 'abundance_rank', 'coherence', 'coherence_rank', 'final_rank']])
 
     best_title = results.loc[max_rank_index, 'title']
     best_text = results.loc[max_rank_index, 'text']
@@ -95,19 +98,27 @@ def get_optimal_title_text(url: str):
 
 
 if __name__ == '__main__':
-    url_list = [
-        'https://www.nytimes.com/2024/09/29/us/north-carolina-helene-relief-damage.html',
-        'http://www.chinatoday.com.cn/ctenglish/2018/commentaries/202409/t20240925_800378506.html',
-        'https://english.elpais.com/economy-and-business/2024-10-02/from-failed-inheritances-to-bad-investments-millionaires-who-lost-a-fortune.html'
-    ]
+    # Fetch all website from the URL list
+    # Save the generated title and text to a file
+    # Save as one big JSON file (that might not exist), in /data/ of the form:
+    # {
+    #     "url1": {
+    #         "title": "Best title",
+    #         "text": ["Best sentence 1", "Best sentence 2", ...]
+    #     },
+    #     "url2": {
+    #         "title": "Best title",
+    #         "text": ["Best sentence 1", "Best sentence 2", ...]
+    #     },
+    #     ...
+    # }
+    url_list = get_url_list()
+    results = {}
+    for url in url_list:
+        print("Processing URL:", url)
+        title, text = get_optimal_title_text(url)
+        results[url] = {'title': title, 'text': text}
 
-    # for each_url in url_list:
-    #     title, text = get_optimal_title_text(each_url)
-    #     print("-----")
-    #     print(f'Title: {title}')
-    #     print(f'Text:  {text}')
-    #     print('-----')
-
-    title, text = get_optimal_title_text(url_list[0])
-    print(f'Title: {title}')
-    print(f'Text:  {"".join(text)}')
+    with open('./data/extracted_data.json', 'w') as f:
+        json.dump(results, f, indent=4)
+    print("Data saved to extracted_data.json")
