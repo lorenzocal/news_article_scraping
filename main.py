@@ -9,9 +9,14 @@ The evaluation function will evaluate the text of the article with respect with 
 """
 import os
 
+from evaluation import evaluate
+from fetching import get_article_simple, get_url_list
+import parsing
+
 import evaluation
 import fetching
 import final_function
+import json
 
 
 def print_retrieve_text(url_index, title, texts):
@@ -47,13 +52,28 @@ def scrape_text_and_save(url_index):
     # print then store the text to a file, so it is easier to read
     return print_retrieve_text(url_index, title, texts)
 
+def print_evaluation_in_json(evaluation, index):
+    # construct the dictionary as
+    url_name = ""
+    url_name = url_name + "{}".format(get_url_list()[index])
 
-scraped_path = scrape_text_and_save(1)
+    result = {
+        url_name: evaluation
+    }
+
+    # append the dictionary in the json file
+    with open("./evaluations/evaluations.json", "a") as file:
+        json.dump(result, file, indent=4)
+
+index = 1
+scraped_path = scrape_text_and_save(index)
 
 #  Evaluate the text
 # TODO: parse and decide how to plot the evaluation
-gt_path = "./data/GroundTruth/0{}.txt".format(1)
+gt_path = "./data/GroundTruth/0{}.txt".format(index+1)
 evaluation = evaluation.evaluate(gt_path, scraped_path)
 
 print("Evaluation:")
 print(evaluation)
+
+print_evaluation_in_json(evaluation, index)
