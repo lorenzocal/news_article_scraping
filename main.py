@@ -50,6 +50,7 @@ def scrape_text_and_save(url_index):
     # print then store the text to a file, so it is easier to read
     return print_and_save_retrieved_text(url_index, title, texts)
 
+
 def print_evaluation_in_json(evaluation, index):
     # construct the dictionary as
     url_name = ""
@@ -59,9 +60,15 @@ def print_evaluation_in_json(evaluation, index):
         url_name: evaluation
     }
 
+    directory = "./evaluations"
     file_path = "./evaluations/evaluations.json"
+
+    # Ensure the directory exists
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
     try:
-        with open("./evaluations/evaluations.json", "r") as file:
+        with open(file_path, "r") as file:
             data = json.load(file)
             data["evaluations"].append(result)
 
@@ -71,18 +78,19 @@ def print_evaluation_in_json(evaluation, index):
         with open(file_path, "w") as file:
             json.dump({"evaluations": [result]}, file, indent=4)
 
-index = 1
+
+index = 3
 scraped_path = scrape_text_and_save(index)
 
 #  Evaluate the text
 # TODO: parse and decide how to plot the evaluation
 gt_path = "./data/GroundTruth/0{}.txt".format(index+1)
-eval = evaluation.evaluate(gt_path, scraped_path)
+evaluation = evaluation.evaluate(gt_path, scraped_path)
 
 print("Evaluation:")
-print(eval)
+print(evaluation)
 
-print_evaluation_in_json(eval, index)
+print_evaluation_in_json(evaluation, index)
 
 # =======================================================================================================================
 # GET ALL ARTICLES AND SAVE THEM TO TEXT

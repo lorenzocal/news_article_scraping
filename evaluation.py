@@ -404,7 +404,7 @@ def evaluate(gtname, filename):
 
         # fourth evaluation method is n-grams
         # TODO: implement the n-grams method
-        "n-grams": 0.5 # jus tfor testing
+        "n-grams": 0.5  # just for testing
     }
 
     # list of weights for the evaluation methods
