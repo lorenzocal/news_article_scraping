@@ -2,7 +2,7 @@
 Evaluation of the program with the ground truth data
 """
 from collections import Counter
-
+import time
 import nltk
 # # should install sentence-transformers
 from sentence_transformers import SentenceTransformer  # SBERT
@@ -40,78 +40,6 @@ def vectorize_doc(gt_str, own_str) -> (float, float):
     else:
         raise "Invalid VECTOR_METHOD"
 
-
-def cos_similarity(gt_str, own_str) -> float:
-    gt_vec, own_vec = vectorize_doc(gt_str, own_str)
-    return cosine_similarity([gt_vec], [own_vec])[0][0]
-
-
-def edit_distance(str1, str2):
-    m = len(str1)
-    n = len(str2)
-
-    # Create a matrix to store results of sub-problems
-    dp = [[0 for _ in range(n + 1)] for _ in range(m + 1)]
-
-    # Fill dp[][] in bottom up manner
-    for i in range(m + 1):
-        for j in range(n + 1):
-            # If the first string is empty, insert all characters of the second string
-            if i == 0:
-                dp[i][j] = j    # Insert all characters of str2
-
-            # If the second string is empty, remove all characters of the first string
-            elif j == 0:
-                dp[i][j] = i    # Remove all characters of str1
-
-            # If last characters of both strings are the same, ignore last character
-            # and get the count for the remaining strings
-            elif str1[i - 1] == str2[j - 1]:
-                dp[i][j] = dp[i - 1][j - 1]
-
-            # If last characters are different, consider all possibilities and
-            # find the minimum
-            else:
-                dp[i][j] = 1 + min(dp[i][j - 1],        # Insert
-                                   dp[i - 1][j],        # Remove
-                                   dp[i - 1][j - 1])    # Replace
-
-    return dp[m][n]
-
-
-def edit_distance_normalized(str1, str2):
-    """
-    Normalization edit distance between two strings
-    Args:
-    str1: string 1
-    str2: string 2
-
-    Returns:
-    float: normalized edit distance in 0-1 range
-    """
-    return edit_distance(str1, str2)/max(len(str1), len(str2))
-
-
-def calc_edit_distance(gt_str, own_str):
-    """
-    **Description:**
-        - Calculate the normalized edit distance between two list of tokens (the gt text and the retrieved text).
-        - The edit distance is normalized by the length of the longest string.
-    Args:
-        gt_str: ground truth string
-        own_str: text extracted from the website
-
-    Returns:
-        float: normalized edit distance in 0-1 range
-    """
-    text_1 = word_tokenize(gt_str)
-    text_2 = word_tokenize(own_str)
-
-    val = edit_distance_normalized(text_1, text_2)
-
-    return val
-
-
 def qualitative_result_switch(x: float):
     try:
         if x > 0.9:
@@ -129,206 +57,186 @@ def qualitative_result_switch(x: float):
     except:
         return "Error in score value"
 
+# Cosine Similarity function
+def cos_similarity(gt_str, own_str) -> float:
+    start_time = time.time()  # Start time
 
-def longest_common_substring(str1, str2):
+    gt_vec, own_vec = vectorize_doc(gt_str, own_str)
+    similarity = cosine_similarity([gt_vec], [own_vec])[0][0]
+
+    end_time = time.time()  # End time
+    elapsed_time = end_time - start_time
+
+    # Write time to a file
+    with open("cos_similarity_time.txt", "a") as file:
+        file.write(f"Time taken: {elapsed_time} seconds\n")
+
+    return similarity
+
+# Edit Distance function
+def edit_distance(str1, str2):
+    start_time = time.time()  # Start time
+
     m = len(str1)
     n = len(str2)
+    dp = [[0 for _ in range(n + 1)] for _ in range(m + 1)]
 
-    # Create a 2D array to store lengths of longest common substrings
-    dp = [[0] * (n + 1) for _ in range(m + 1)]
-
-    longest = 0  # Length of the longest common substring
-    end_index = 0  # Ending index of the longest common substring in str1
-
-    # Build the dp array
-    for i in range(1, m + 1):
-        for j in range(1, n + 1):
-            if str1[i - 1] == str2[j - 1]:  # Characters match
-                dp[i][j] = dp[i - 1][j - 1] + 1
-                if dp[i][j] > longest:
-                    longest = dp[i][j]
-                    end_index = i  # Update end index of LCS
+    for i in range(m + 1):
+        for j in range(n + 1):
+            if i == 0:
+                dp[i][j] = j
+            elif j == 0:
+                dp[i][j] = i
+            elif str1[i - 1] == str2[j - 1]:
+                dp[i][j] = dp[i - 1][j - 1]
             else:
-                dp[i][j] = 0  # Reset if no match
+                dp[i][j] = 1 + min(dp[i][j - 1], dp[i - 1][j], dp[i - 1][j - 1])
 
-    # Extract the longest common substring from str1 using the end_index
-    longest_common_substr = str1[end_index - longest:end_index]
+    end_time = time.time()  # End time
+    elapsed_time = end_time - start_time
 
-    print("longest_common_substr:", longest_common_substr)
+    # Write time to a file
+    with open("edit_distance_time.txt", "a") as file:
+        file.write(f"Time taken: {elapsed_time} seconds\n")
 
-    return longest
+    return dp[m][n]
 
+# Normalized Edit Distance
+def edit_distance_normalized(str1, str2):
+    start_time = time.time()  # Start time
 
-def calc_lcsb(gt_str, own_str):
+    distance = edit_distance(str1, str2)
+    normalized_distance = distance / max(len(str1), len(str2))
+
+    end_time = time.time()  # End time
+    elapsed_time = end_time - start_time
+
+    # Write time to a file
+    with open("edit_distance_normalized_time.txt", "a") as file:
+        file.write(f"Time taken: {elapsed_time} seconds\n")
+
+    return normalized_distance
+
+# Calculate Normalized Edit Distance
+def calc_edit_distance(gt_str, own_str):
+    start_time = time.time()  # Start time
+
     text_1 = word_tokenize(gt_str)
     text_2 = word_tokenize(own_str)
+    val = edit_distance_normalized(text_1, text_2)
 
-    val = longest_common_substring(text_1, text_2)
+    end_time = time.time()  # End time
+    elapsed_time = end_time - start_time
+
+    # Write time to a file
+    with open("calc_edit_distance_time.txt", "a") as file:
+        file.write(f"Time taken: {elapsed_time} seconds\n")
 
     return val
 
+# Longest Common Substring
+def longest_common_substring(str1, str2):
+    start_time = time.time()  # Start time
 
-def test_calc_lcsb():
-    gt_str = load_data('data/01.txt')
-    own_str = load_data('test_data/01.txt')
-
-    val = calc_lcsb(gt_str, own_str)
-
-    print("LCS:", val)
-
-    percentage = val / len(word_tokenize(gt_str)) * 100
-
-    print("Percentage of LCS:", percentage)
-
-
-def plot_similarity_edit_distance():
-    pre_path = 'scr__/BeautifulSoup_url'
-
-    similarities = []
-
-    print("Edit distance similarity")
-
-    for i in range(1, 6):
-        gtname = f'data/0{i}.txt'
-        filename = f'{pre_path}{i}.txt'
-
-        # tokenizing the text
-        text_1 = word_tokenize(load_data(gtname))
-        text_2 = word_tokenize(load_data(filename))
-
-        similarities.append(1 - edit_distance_normalized(text_1, text_2))
-        print(f"Similarity between {gtname} and {filename} is {similarities[-1]}")
-
-    # Draw a histogram
-    plt.bar([f"Pair {i}" for i in range(1, 6)], similarities)
-    plt.xlabel("Text Pairs")
-    plt.ylabel("(1 - Edit Distance) Similarity")
-    plt.title("(1 - Edit Distance) Similarity between Ground Truth and Extracted Texts")
-
-    plt.show()
-
-
-def all_longest_common_substrings(tokens_list_1, tokens_list_2):
-    """
-    Find all non-overlapping longest common substrings between two lists of tokens.
-
-    **Idea:**
-        - find how many relevant common substrings are there between the two texts.
-    Args:
-        tokens_list_1: ground truth tokens
-        tokens_list_2: retrieved text tokens
-
-    Returns:
-
-    """
-    m = len(tokens_list_1)
-    n = len(tokens_list_2)
-
-    # Create a 2D array to store lengths of longest common substrings
+    m = len(str1)
+    n = len(str2)
     dp = [[0] * (n + 1) for _ in range(m + 1)]
+    longest = 0
+    end_index = 0
 
-    # This will store the lengths and ending positions of all common substrings
-    substrings = []
-
-    # Build the dp array
     for i in range(1, m + 1):
         for j in range(1, n + 1):
-            if tokens_list_1[i - 1] == tokens_list_2[j - 1]:  # Tokens match
+            if str1[i - 1] == str2[j - 1]:
                 dp[i][j] = dp[i - 1][j - 1] + 1
-                substrings.append((dp[i][j], i))  # Store length and end position in tokens1
+                if dp[i][j] > longest:
+                    longest = dp[i][j]
+                    end_index = i
             else:
-                dp[i][j] = 0  # Reset if no match
+                dp[i][j] = 0
 
-    # Sort substrings by their length in descending order to prioritize the longest matches
+    end_time = time.time()  # End time
+    elapsed_time = end_time - start_time
+
+    # Write time to a file
+    with open("longest_common_substring_time.txt", "a") as file:
+        file.write(f"Time taken: {elapsed_time} seconds\n")
+
+    return longest
+
+# Calculate Longest Common Substring
+def calc_lcsb(gt_str, own_str):
+    start_time = time.time()  # Start time
+
+    text_1 = word_tokenize(gt_str)
+    text_2 = word_tokenize(own_str)
+    val = longest_common_substring(text_1, text_2)
+
+    end_time = time.time()  # End time
+    elapsed_time = end_time - start_time
+
+    # Write time to a file
+    with open("calc_lcsb_time.txt", "a") as file:
+        file.write(f"Time taken: {elapsed_time} seconds\n")
+
+    return val
+
+# Find all non-overlapping longest common substrings between two lists of tokens
+def all_longest_common_substrings(tokens_list_1, tokens_list_2):
+    m = len(tokens_list_1)
+    n = len(tokens_list_2)
+    dp = [[0] * (n + 1) for _ in range(m + 1)]
+    substrings = []
+
+    for i in range(1, m + 1):
+        for j in range(1, n + 1):
+            if tokens_list_1[i - 1] == tokens_list_2[j - 1]:
+                dp[i][j] = dp[i - 1][j - 1] + 1
+                substrings.append((dp[i][j], i))
+            else:
+                dp[i][j] = 0
+
     substrings.sort(reverse=True, key=lambda x: x[0])
-
-    # To hold the final list of non-overlapping longest common substrings
     non_overlapping_substrings = []
     used_indices = set()
 
     for length, end_idx in substrings:
         start_idx = end_idx - length
-
-        # Ensure no overlap with already selected substrings
         if all(idx not in used_indices for idx in range(start_idx, end_idx)):
             string_to_add = tokens_list_1[start_idx:end_idx]
             if string_to_add not in non_overlapping_substrings and len(string_to_add) > 3:
                 non_overlapping_substrings.append(string_to_add)
-
-            # Mark these indices as used
             used_indices.update(iter(range(start_idx, end_idx)))
 
     return non_overlapping_substrings
 
-
+# Partially retrieve metrics
 def partially_retrieve_metrics(text1: str, text2: str):
-    """
-    **Core Idea:**
-        - Find the percentage of ground truth text that is retrieved by the extracted text.
-
-    The idea is:
-    - to find out the longest common substrings between the ground truth and the extracted text
-
-    - keep the ones that are longer then a certain threshold of percentage of the length of the ground truth (in terms of token)
-
-    - sum the length of all the longest common substrings that are longer than the threshold
-
-    - divide the sum by the length of the ground truth
-
-    Returns:
-        The percentage of the longest common substrings that are longer than the threshold
-    """
-    threshold = 0.01
+    start_time = time.time()  # Start time
 
     text_1 = word_tokenize(text1)
     text_2 = word_tokenize(text2)
-
-    # print("text_1:", text_2)
-
     lcs_s = all_longest_common_substrings(text_1, text_2)
-
-    # parse and eliminate the ones that are shorter than the threshold
-    lcs_s = [lcs for lcs in lcs_s if len(lcs) > threshold * len(text_1)]
-
-    # print("lcs_s:", lcs_s)
-
-    # sum the length of the longest common substrings
+    lcs_s = [lcs for lcs in lcs_s if len(lcs) > 0.01 * len(text_1)]
     sum_lcs = sum(len(lcs) for lcs in lcs_s)
+    percentage = sum_lcs / len(text_1)
 
-    # return the percentage of the longest common substrings that are longer than the threshold
-    return sum_lcs / len(text_1)
+    end_time = time.time()  # End time
+    elapsed_time = end_time - start_time
 
+    # Write time to a file
+    with open("partially_retrieve_metrics_time.txt", "a") as file:
+        file.write(f"Time taken: {elapsed_time} seconds\n")
 
-def plot_partially_retrieve_metrics():
-    pre_path = 'scr__/BeautifulSoup_url'
-
-    similarities = []
-
-    print("Partially retrieve metrics")
-
-    for i in range(1, 6):
-        gtname = f'data/0{i}.txt'
-        filename = f'{pre_path}{i}.txt'
-
-        # tokenizing the text
-        text_1 = load_data(gtname)
-        text_2 = load_data(filename)
-
-        similarities.append(partially_retrieve_metrics(text_1, text_2))
-        print(f"Similarity between {gtname} and {filename} is {similarities[-1]}")
-
-    # Draw a histogram
-    plt.bar([f"Pair {i}" for i in range(1, 6)], similarities)
-    plt.xlabel("Text Pairs")
-    plt.ylabel("Percentage of retrieved text")
-    plt.title("Ratio of the sum of retrieved cs sizes to the gt size")
-
-    plt.show()
+    return percentage
 
 
-def n_grams(text1: str, text2: str, n: int) -> dict[str, list[tuple] | Counter | float]:
-    tokens1 = word_tokenize(text1.lower())  # Tokenize and lowercased text
-    tokens2 = word_tokenize(text2.lower())  # Tokenize and lowercased text
+def n_grams(text1: str, text2: str, n: int) -> float:
+    # Start time recording
+    start_time = time.time()
+
+    # Tokenize and lowercase text
+    tokens1 = word_tokenize(text1.lower())
+    tokens2 = word_tokenize(text2.lower())
     ngrams1 = list(ngrams(tokens1, n))
     ngrams2 = list(ngrams(tokens2, n))
 
@@ -343,9 +251,20 @@ def n_grams(text1: str, text2: str, n: int) -> dict[str, list[tuple] | Counter |
     total_ngrams = len(ngrams1) + len(ngrams2)
     common_count = sum(common_ngrams.values())
 
+    # Compute similarity score
     similarity = (2 * common_count) / total_ngrams if total_ngrams > 0 else 0
 
-    return similarity #{"ngrams1": ngrams1, "ngrams2": ngrams2, "common_ngrams": common_ngrams, "similarity": similarity}
+    # End time recording
+    end_time = time.time()
+
+    # Calculate the elapsed time
+    elapsed_time = end_time - start_time
+
+    # Write the elapsed time to a file
+    with open("execution_time_n_gram.txt", "a") as file:
+        file.write(f"Time taken for n-gram similarity: {elapsed_time} seconds\n")
+
+    return similarity
 
 
 def evaluate(gtname, filename):
@@ -424,3 +343,53 @@ def evaluate(gtname, filename):
     evaluation_results = {key: round(value, 4) if isinstance(value, float) else value for key, value in evaluation_results.items()}
 
     return evaluation_results
+
+def calculate_average_times(file_names):
+    result_dict = {}
+    for file_name in file_names:
+        total_time = 0
+        count = 0
+
+        with open(file_name, 'r') as file:
+            for line in file:
+                if "Time taken: " in line:
+                    try:
+                        time_taken = float(line.split("Time taken: ")[1].split(" seconds")[0])
+                        total_time += time_taken
+                        count += 1
+                    except (IndexError, ValueError):
+                        print(f"Warning: Could not parse time in line: {line.strip()}")
+                        continue
+        
+        average_time = total_time / count if count > 0 else 0
+        result_dict[file_name] = average_time
+
+    return result_dict
+
+
+
+# Example usage
+file_names = ["cos_similarity_time.txt","calc_edit_distance_time.txt","edit_distance_time.txt","execution_time_n_gram.txt","partially_retrieve_metrics_time.txt"]
+# Dictionary to store average times for each file
+average_time_dict = calculate_average_times(file_names)
+filename_labels = [
+    "cos_similarity",
+    "calc_edit_distance",
+    "edit_distance",
+    "n_gram",
+    "partially_retrieve_metrics"
+]
+
+
+average_times = list(average_time_dict.values())
+plt.figure(figsize=(16, 12))
+plt.barh(filename_labels, average_times, color='skyblue')
+plt.xlabel('Average Time (s)')
+plt.ylabel('File Names')
+plt.title('Average Times for Different Files')
+plt.savefig('average_times_chart.png')
+
+
+
+# Output the result
+# print(f"Average time for {file_name}: {average_time_dict[file_name]} seconds")
