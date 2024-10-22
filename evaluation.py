@@ -114,7 +114,9 @@ def calc_edit_distance(gt_str, own_str):
 
 def qualitative_result_switch(x: float):
     try:
-        if x > 0.8:
+        if x > 0.9:
+            return "very high"
+        elif x > 0.8:
             return "high"
         elif x > 0.6:
             return "medium"
@@ -404,7 +406,7 @@ def evaluate(gtname, filename):
     }
 
     # list of weights for the evaluation methods
-    weights = [0.25, 0.25, 0.25, 0.25]
+    weights = [0.15, 0.35, 0.15, 0.35]
 
     # do a weighted average of the first 4 evaluation results
     evaluation_results["evaluation_score"] = (weights[0] * evaluation_results["cosine_similarity"]
